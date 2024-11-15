@@ -29,6 +29,7 @@ class Bed {
             const daysLeft = Math.floor(diffTime / (1000 * 60 * 60 * 24)); 
             let daysLeftElement = document.createElement('div');
             daysLeftElement.textContent = daysLeft + ' days';
+            bed.appendChild(daysLeftElement);
         }
 
         bed.onclick = () => {
