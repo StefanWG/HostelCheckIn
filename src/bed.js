@@ -21,13 +21,14 @@ class Bed {
         }
 
         if (!this.available) { 
+            this.checkOutDate = new Date(this.checkOutDate)
             let d = new Date();
-            console.log(d);
-            let daysLeft = Math.ceil((this.checkOutDate - d) / (1000 * 60 * 60 * 24));
-            console.log(this.checkOutDate)
+            let today = new Date(d.getFullYear(), d.getMonth(), d.getDate());
+        
+            const diffTime = this.checkOutDate - today;
+            const daysLeft = Math.floor(diffTime / (1000 * 60 * 60 * 24)); 
             let daysLeftElement = document.createElement('div');
             daysLeftElement.textContent = daysLeft + ' days';
-            bed.appendChild(daysLeftElement);
         }
 
         bed.onclick = () => {
@@ -39,6 +40,7 @@ class Bed {
     }
 
     checkIn(numDays) {
+        let d = new Date();
         this.numDays = numDays;
         this.available = false;
         let dateString = d.getDate() + '/' + (d.getMonth() + 1) + '/' + d.getFullYear()

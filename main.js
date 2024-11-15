@@ -16,33 +16,34 @@ class Hostel {
       }
   }
 
-  displayRooms(main) {
+  displayRooms() {
       let rooms = document.createElement('div');
       rooms.classList.add("hostel");
       for (let i = 0; i < this.rooms.length; i++) {
           let room = this.rooms[i].displayRoom();
           rooms.appendChild(room);
       }
-      main.appendChild(rooms);
+      return rooms;
+      // main.appendChild(rooms);
   }
 
   getJsonString () {
-      let data = [];
-      for (let i = 0; i < this.rooms.length; i++) {
-          let room = this.rooms[i];
-          for (let j = 0; j < room.beds.length; j++) {
-              let bed = room.beds[j];
-              data.push({
-                  room: room.name,
-                  bed: bed.number,
-                  available: bed.available,
-                  checkInDate: bed.checkInDate,
-                  numDays: bed.numDays,
-                  checkOutDate: bed.checkOutDate
-              });
-          }
-      }
-      return JSON.stringify(data);
+    let data = [];
+    for (let i = 0; i < this.rooms.length; i++) {
+        let room = this.rooms[i];
+        for (let j = 0; j < room.beds.length; j++) {
+            let bed = room.beds[j];
+            data.push({
+                room: room.name,
+                bed: bed.number,
+                available: bed.available,
+                checkInDate: bed.checkInDate,
+                numDays: bed.numDays,
+                checkOutDate: bed.checkOutDate
+            });
+        }
+    }
+    return JSON.stringify(data);
   }
 }
 
@@ -94,14 +95,7 @@ class Bed {
       bed.classList.add(this.type);
       if (this.available) {
           bed.classList.add('available');
-      } else { 
-        // console.log(bed.numDays)
-        // let d = new Date();
-        // let daysLeft = Math.ceil((this.checkOutDate - d) / (1000 * 60 * 60 * 24));
-        // let daysLeftElement = document.createElement('div');
-        // daysLeftElement.textContent = bed.numDays + ' days';
-        // bed.appendChild(daysLeftElement);
-    }
+      } 
 
       bed.onclick = () => {
           window.api.send("loadCheckin", {bed: this.number, room: this.room.name});
@@ -110,11 +104,13 @@ class Bed {
   }
 
   checkIn(numDays) {
-      this.numDays = numDays;
+      let d = new Date();
+      this.numDays = parseInt(numDays);
       this.available = false;
-      let dateString = d.getDate() + '/' + (d.getMonth() + 1) + '/' + d.getFullYear()
-      this.checkInDate = new Date(dateString);
-      this.checkOutDate = addDays(dateString, this.numDays);
+      this.checkInDate = new Date(d.getFullYear(), d.getMonth(), d.getDate()); // TODO: Get from page
+      let temp = new Date()
+      temp.setDate(temp.getDate() + this.numDays); 
+      this.checkOutDate = new Date(temp.getFullYear(), temp.getMonth(), temp.getDate());
   }
 }
 
@@ -126,7 +122,7 @@ async function createWindow() {
 
   // Create the browser window.
   win = new BrowserWindow({
-    width: 800,
+    width: 1000,
     height: 600,
     webPreferences: {
       nodeIntegration: true, // is default value after Electron v5
@@ -189,10 +185,7 @@ ipcMain.on("updateHostel", (event, args) => {
       }
       let newBed = new Bed(hostel, room, 'Single', bed.bed);
       if (newBed.number == curBed && room.name == curRoom) {
-        newBed.available = false;
-        newBed.checkInDate = args.checkInDate;
-        newBed.numDays = args.numDays;
-        newBed.checkOutDate = args.checkOutDate;
+        newBed.checkIn(args.numDays);
       } else {
         newBed.available = bed.available;
         newBed.checkInDate = bed.checkInDate;

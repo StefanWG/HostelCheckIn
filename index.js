@@ -19,5 +19,4 @@ window.api.receive("fromMain", (data) => {
     return hostel;
 });
 
-
 window.api.send("toMain", "some data");
