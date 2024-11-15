@@ -1,0 +1,15 @@
+{
+  "name": "hostel-electron",
+  "version": "1.0.0",
+  "description": "hostel check-in app",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Stefan Walzer-Goldfeld",
+  "license": "ISC",
+  "devDependencies": {
+    "electron": "^33.2.0"
+  }
+}

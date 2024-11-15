@@ -1,0 +1,77 @@
+/* style.css */
+
+/* Outer container - Hostel container */
+.hostel {
+    background-color: #f5f5dc; /* Soft beige for a warm, welcoming tone */
+    border: 2px solid #8b5e3c; /* Brownish border for a rustic feel */
+    border-radius: 8px;
+    padding: 20px;
+    max-width: 1200px;
+    margin: auto;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    display: grid; /* Use grid layout */
+    grid-template-columns: repeat(2, 1fr); /* Create two columns */
+    gap: 15px; /* Space between the rooms */
+}
+
+/* Styling for room container */
+.room {
+    background-color: #d2b48c; /* Light tan for room sections */
+    border: 1px solid #8b4513;
+    margin: 10px 0;
+    padding: 15px;
+    border-radius: 5px;
+    display: flex;
+    flex-direction: column; /* Arrange children vertically */
+    align-items: center; /* Center-aligns the children horizontally */
+}
+
+/* Styling for room name - h2 inside .room */
+.room h2 {
+    margin: 0 0 10px 0; /* Space below the heading */
+    font-size: 1.5rem; /* Adjusts the size of the heading */
+    font-weight: bold;
+    color: #8b4513; /* Dark brown color to complement the room */
+    border-bottom: 2px solid #8b5e3c; /* Optional border for emphasis */
+    padding-bottom: 5px; /* Space between text and border */
+    text-align: center; /* Center text horizontally */
+    font-family: 'Arial', sans-serif; /* A clean and easy-to-read font */
+}
+
+/* Container for bed elements (optional for flexibility) */
+.beds {
+    display: flex; /* Arrange beds horizontally */
+    flex-wrap: wrap; /* Allows wrapping if there are too many beds */
+    gap: 10px; /* Space between the beds */
+    justify-content: center; /* Center beds within the container */
+    width: 100%; /* Make container span full width */
+}
+
+
+
+/* Inner container - Bed container */
+.bed {
+    background-color: #deb887; /* Lighter brown for beds */
+    width: 50px;
+    height: 50px;
+    padding: 10px;
+    margin: 5px;
+    border: 1px solid #8b4513; /* Dark brown */
+    border-radius: 3px;
+    text-align: center;
+    color: red;
+    font-weight: bold;
+}
+
+/* Available bed state */
+.available {
+    background-color: #32cd32; /* Bright green for availability */
+    color: #fff;
+}
+
+/* Hover effects for beds */
+.bed:hover {
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.15);
+    transform: scale(1.05);
+    transition: all 0.3s ease;
+}
