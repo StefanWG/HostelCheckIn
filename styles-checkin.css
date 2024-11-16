@@ -127,12 +127,12 @@ button {
 }
 
 /* Button styles */
-#checkin {
+#pickrooms {
     background-color: #32cd32;
     color: white;
 }
 
-#checkin:hover {
+#pickrooms:hover {
     background-color: #28a428;
 }
 

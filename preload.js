@@ -1,31 +1,3 @@
-// const { contextBridge } = require('electron')
-// const fs = require('fs');
-
-// contextBridge.exposeInMainWorld(
-//     // 'hostel', readHostelLayoutFile('assets/hostel.json'),
-//     "utils", {
-//         "readHostelLayoutFile": (fp) => {
-//             console.log("reading file");
-//             let e = null;
-//             fs.readFile(fp, "utf-8", (error, data) => {
-//                 if (error){
-//                     console.error("error: " + error);
-//                     e = error;
-//                 } else {
-//                     console.log("success");
-//                     let json = JSON.parse(data);
-//                     // console.log(data);
-//                     // console.log(json);
-//                     // let hostel = createHostelFromJson(json);
-//                     // console.log(hostel);
-//                     // return json;
-//                     return data;
-//                 }
-//             })
-//             console.log(e);
-//     }
-//     }
-// )
 const {
     contextBridge,
     ipcRenderer
@@ -37,7 +9,7 @@ contextBridge.exposeInMainWorld(
     "api", {
         send: (channel, data) => {
             // whitelist channels
-            let validChannels = ["toMain", "loadCheckin", "loadIndex", "updateHostel"];
+            let validChannels = ["toMain", "loadCheckin", "loadIndex", "updateHostel", "goToRoomPicker"];
             if (validChannels.includes(channel)) {
                 ipcRenderer.send(channel, data);
             }

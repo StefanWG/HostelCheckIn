@@ -167,6 +167,11 @@ ipcMain.on("loadIndex", (event, args) => {
   win.loadFile(path.join(__dirname, `index.html`));
 });
 
+ipcMain.on("goToRoomPicker", (event, args) => {
+  win.loadFile(path.join(__dirname, `roompicker.html`));
+  // TODO: Save args
+});
+
 ipcMain.on("updateHostel", (event, args) => {
   console.log(args);
   let hostel = new Hostel('Hostel', []);

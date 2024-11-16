@@ -8,34 +8,36 @@ let dateInput = document.getElementById('checkindate');
 dateInput.valueAsDate = new Date();
 
 let cancelButton = document.getElementById('cancel');
-let checkinButton = document.getElementById('checkin');
+let pickroomsButton = document.getElementById('pickrooms');
 
 cancelButton.onclick =  () => {
     window.api.send("loadIndex", {});
 };
 
-// checkinButton.onclick = () => { 
-//     let ids = ["numdays","numppl", "fname", "lname", "country", "passport"];
-//     for (let id of ids) {
-//         if (document.getElementById(id).value === "") {
-//             return;
-//         }
-//     }
+pickroomsButton.onclick = () => { 
+    let ids = ["numdays","numppl", "fname", "lname", "country", "passport"];
+    for (let id of ids) {
+        if (document.getElementById(id).value === "") {
+            return;
+        }
+    }
 
-//     let numDays = parseInt(document.getElementById('numdays').value);
-//     let checkInDate = new Date(dateInput.value)
-//     let checkOutDate = new Date(dateInput.value);
-//     checkOutDate.setDate(checkInDate.getDate() + numDays);
+    let numDays = parseInt(document.getElementById('numdays').value);
+    let checkInDate = new Date(dateInput.value)
+    let checkOutDate = new Date(dateInput.value);
+    checkOutDate.setDate(checkInDate.getDate() + numDays);
 
-//     window.api.send("updateHostel", {
-//         "numDays": numDays, 
-//         "checkInDate": checkInDate, 
-//         "checkOutDate": checkOutDate,
-//         "fname": document.getElementById('fname').value,
-//         "lname": document.getElementById('lname').value,
-//         "country": document.getElementById('country').value,
-//         "passport": document.getElementById('passport').value});
-// }
+    window.api.send("goToRoomPicker", {
+        "numDays": numDays, 
+        "numppl": document.getElementById('numppl').value,
+        "checkInDate": checkInDate, 
+        "checkOutDate": checkOutDate,
+        "fname": document.getElementById('fname').value,
+        "lname": document.getElementById('lname').value,
+        "country": document.getElementById('country').value,
+        "passport": document.getElementById('passport').value});
+        //TODO: add payment stuff
+}
 
 document.addEventListener('DOMContentLoaded', function() {
     // Get references to the payment radio buttons and input fields
