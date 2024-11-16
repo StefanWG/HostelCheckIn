@@ -8,14 +8,37 @@
     <script src="main.js"></script>
     <script src="checkin.js" defer></script>
     <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="styles-checkin.css">
 </head>
 <body>
-    <div id="title">Title</div>
-
-    <input type="date" id="checkindate">
-    <input type="number" id="numdays" min="1" max="14">
-
-    <button id="checkin">Check In</button>
+    <div id="title">Check In</div>
+    <form>
+        <input type="date" id="checkindate">
+        <!-- TODO: Number of days and people inline with each other -->
+        <input type="number" id="numdays" min="1" max="14" placeholder="Number of Days">
+        <input type="number" id="numppl" min="1" max="40" placeholder="Number of People">
+        <input type="text" id="fname" placeholder="First Name">
+        <input type="text" id="lname" placeholder="Last Name">
+        <input type="text" id="country" placeholder="Country">
+        <input type="text" id="passport" placeholder="Passport Number">
+        <!-- TODO: person making payment -->
+        <div id="payment">
+            <div id="tab-container">
+                <input type="radio" name="payment" value="cash" id="cash" checked>
+                <label for="cash">Cash</label>
+                <input type="radio" name="payment" value="credit" id="credit">
+                <label for="credit">Credit Card</label>
+                <input type="radio" name="payment" value="no-payment" id="no-payment">
+                <label for="no-payment">No Payment</label>
+            </div>
+            <div id="input-container">
+                <input type="number" id="ccPayment" placeholder="Credit Card Amount">
+                <input type="text" id="cashNotes" placeholder="Cash Notes">
+                <input type="text" id="npNotes" placeholder="Notes">
+            </div>
+        </div>
+    </form>
+    <button id="pickrooms">Pick Rooms</button>
     <button id="cancel">Cancel</button>
 </body>
 </html>

@@ -1,3 +1,6 @@
+// TODO: Language thing (esp, eng)
+
+
 const {
   app,
   BrowserWindow,
@@ -123,7 +126,7 @@ async function createWindow() {
   // Create the browser window.
   win = new BrowserWindow({
     width: 1000,
-    height: 600,
+    height: 800,
     webPreferences: {
       nodeIntegration: true, // is default value after Electron v5
       contextIsolation: true, // protect against prototype pollution
@@ -160,6 +163,7 @@ ipcMain.on("loadCheckin", (event, args) => {
 });
 
 ipcMain.on("loadIndex", (event, args) => {  
+  console.log("HERE");
   win.loadFile(path.join(__dirname, `index.html`));
 });
 

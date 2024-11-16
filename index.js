@@ -20,3 +20,11 @@ window.api.receive("fromMain", (data) => {
 });
 
 window.api.send("toMain", "some data");
+
+let checkInBUtton = document.getElementById('checkin');
+checkInBUtton.addEventListener('click', () => {
+    window.api.send("loadCheckin", {});
+});
+
+//TODO: Different color if bed is occupied but unpaid
+

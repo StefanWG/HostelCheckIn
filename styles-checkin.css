@@ -1,0 +1,146 @@
+/* General styling for body */
+body {
+    font-family: 'Arial', sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: #f8f8f8;
+    color: #333;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 20px;
+}
+
+/* Title styling */
+#title {
+    font-size: 2rem;
+    font-weight: bold;
+    margin-bottom: 20px;
+    color: #8b4513;
+    text-align: center;
+}
+
+/* Form styling */
+form {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    max-width: 400px;
+    width: 100%;
+    background-color: #fff;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    margin-bottom: 20px;
+}
+
+/* Form inputs */
+input[type="date"],
+input[type="number"],
+input[type="text"] {
+    display: block;
+    width: calc(100% - 20px);
+    padding: 10px;
+    margin: 10px 0;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.05);
+    font-size: 1rem;
+}
+
+/* Input focus state */
+input:focus {
+    outline: none;
+    border-color: #8b4513;
+}
+
+/* Payment section */
+/* Container for the radio button tabs */
+#payment {
+    display: flex;
+    flex-direction: column; /* Stack tabs and inputs vertically */
+    margin-top: 15px;
+}
+
+/* Tabs container */
+#tab-container {
+    display: flex;
+}
+
+/* Styling for radio buttons as tabs */
+#payment input[type="radio"] {
+    display: none; /* Hide the original radio buttons */
+}
+
+#payment label {
+    padding: 10px 20px;
+    border: 1px solid #ccc;
+    border-radius: 5px 5px 0 0;
+    cursor: pointer;
+    margin-right: 5px;
+    background-color: #f0f0f0;
+    color: #333;
+    font-weight: bold;
+    transition: background-color 0.3s ease;
+}
+
+/* Active tab styling */
+#payment label.active {
+    background-color: #8b4513; /* Highlighted color for the active tab */
+    color: white;
+}
+
+/* Hover effect */
+#payment label:hover {
+    background-color: #b57f4a;
+}
+
+/* Input fields container */
+#input-container {
+    border: 1px solid #ccc;
+    border-radius: 0 5px 5px 5px;
+    padding: 15px;
+    background-color: #fff;
+}
+
+
+
+/* Specific styling for payment input fields */
+#ccPayment,
+#cashNotes {
+    width: calc(100% - 20px);
+    margin: 10px 0;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+}
+
+/* Buttons */
+button {
+    padding: 10px 20px;
+    margin: 10px 5px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 1rem;
+    transition: background-color 0.3s ease;
+}
+
+/* Button styles */
+#checkin {
+    background-color: #32cd32;
+    color: white;
+}
+
+#checkin:hover {
+    background-color: #28a428;
+}
+
+#cancel {
+    background-color: #ff4d4d;
+    color: white;
+}
+
+#cancel:hover {
+    background-color: #d43d3d;
+}
