@@ -1,5 +1,10 @@
-window.api.receive("fromMain", (data) => {
-    let hostel = new Hostel('Hostel', []);
+let hostel = null;
+window.api.receive("fromMain", (args) => {
+    console.log(args)
+    let data = args["data"];
+    let numppl = args["numppl"];
+    console.log(numppl);
+    hostel = new Hostel('Hostel', []);
     for (let i = 0; i < data.length; i++) {
         let bed = data[i];
         let room = hostel.rooms.find(room => room.name === bed.room);
@@ -15,16 +20,30 @@ window.api.receive("fromMain", (data) => {
         newBed.checkOutDate = bed.checkOutDate;
         room.addBed(newBed);
     }
+    console.log("here");
     hostel.displayRooms(main);
-    return hostel;
 });
+
+window.api.receive("bedClickedFromMain", (args) => {
+    console.log(args);
+    while (main.firstChild) {
+        main.removeChild(main.firstChild);
+    }
+
+    let room = hostel.rooms.find(room => room.name === args.room);
+    let bedObj = room.beds.find(b => b.number === args.bed);
+    bedObj.selected = !bedObj.selected;
+
+    hostel.displayRooms(main);
+
+})
 
 window.api.send("toMain", "some data");
 
-let checkInBUtton = document.getElementById('checkin');
-checkInBUtton.addEventListener('click', () => {
-    window.api.send("loadCheckin", {});
+let submitButton = document.getElementById('checkin');
+submitButton.addEventListener('click', () => {
+    // window.api.send("updateHostel", {});
+    // TODO: ask if needs to send warning - or control this on this page
+    // TODO: pass to update hostel
 });
-
-//TODO: Different color if bed is occupied but unpaid
 

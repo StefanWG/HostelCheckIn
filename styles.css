@@ -1,3 +1,7 @@
+#main {
+    padding-top: 75px;
+}
+
 /* Outer container - Hostel container */
 .hostel {
     background-color: #f5f5dc; /* Soft beige for a warm, welcoming tone */
@@ -82,8 +86,17 @@
     transform: scale(1.1);
 }
 
+.bed.selected {
+    background-color: #13398b; /* Dark brown for selected bed */
+    color: white;
+}
+
 /* Styling for the navigation container */
 #nav {
+    position: fixed;
+    top: 0px;
+    height: 50px;
+    width: 100%;
     display: flex;
     justify-content: center; /* Center align the button */
     background-color: #f4e1d2; /* Light tan color for background */
@@ -91,14 +104,15 @@
     border-bottom: 2px solid #8b4513; /* Border for separation */
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
     margin-bottom: 20px;
+    gap: 20px;
 }
 
 /* Styling for the "Check In" button */
-#checkin {
+#nav button {
     padding: 12px 25px;
     border: none;
     border-radius: 5px;
-    background-color: #32cd32; /* Green background */
+    background-color: lightblue; /* Green background */
     color: white;
     font-size: 1rem;
     cursor: pointer;
@@ -106,13 +120,13 @@
 }
 
 /* Hover effect for the "Check In" button */
-#checkin:hover {
-    background-color: #28a428; /* Darker green on hover */
+#nav button:hover {
+    background-color: lightskyblue; /* Darker green on hover */
     transform: scale(1.05); /* Slightly enlarge the button */
 }
 
 /* Active state styling for better feedback */
-#checkin:active {
+#nav button:active {
     transform: scale(0.98); /* Slightly reduce size on click */
 }
 

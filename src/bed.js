@@ -8,6 +8,7 @@ class Bed {
         this.checkInDate = null;
         this.numDays = null;
         this.checkOutDate = null;
+        this.selected = false;
     }
 
     displayBed() {
@@ -16,6 +17,9 @@ class Bed {
         bed.textContent = this.number;
         bed.classList.add('bed');
         bed.classList.add(this.type);
+        if (this.selected) {
+            bed.classList.add('selected');
+        }
         if (this.available) {
             bed.classList.add('available');
         }
@@ -33,9 +37,8 @@ class Bed {
         }
 
         bed.onclick = () => {
-            console.log('clicked');
-            // window.open(`checkin.html?bed=${this.number}&room=${this.room.name}`, '_blank');
-            window.api.send("loadCheckin", {bed: this.number, room: this.room.name});
+            window.api.send("bedClicked", {bed: this.number, room: this.room.name}); 
+            // TODO: Change this to just send a message and then handle it from different pages in main
         };
         return bed;
     }

@@ -9,16 +9,16 @@ contextBridge.exposeInMainWorld(
     "api", {
         send: (channel, data) => {
             // whitelist channels
-            let validChannels = ["toMain", "loadCheckin", "loadIndex", "updateHostel", "goToRoomPicker"];
+            let validChannels = ["toMain", "bedClicked","loadCheckin", "loadIndex", "updateHostel", "goToRoomPicker"];
             if (validChannels.includes(channel)) {
                 ipcRenderer.send(channel, data);
             }
         },
         receive: (channel, func) => {
-            let validChannels = ["fromMain", "checkinArgs"];
+            let validChannels = ["fromMain", "checkinArgs", "bedClickedFromMain"];
             if (validChannels.includes(channel)) {
-                // Deliberately strip event as it includes `sender` 
                 ipcRenderer.on(channel, (event, ...args) => func(...args));
+
             }
         }
     }

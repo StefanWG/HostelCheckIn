@@ -143,23 +143,41 @@ async function createWindow() {
 
 app.on("ready", createWindow);
 
-let curBed = null;
-let curRoom = null;
+
+let curData = null;
+let bedsClicked = [];
+let numBedsClicked = 0;
+
 
 ipcMain.on("toMain", (event, args) => {
   fs.readFile("assets/hostel.json", (error, data) => {
     // Do something with file contents
     let json = JSON.parse(data);
     // Send result back to renderer process
-    win.webContents.send("fromMain", json);
+    if (curData != null) {
+      win.webContents.send("fromMain", {"data":json, "numppl":curData.numppl});
+    } else {
+      win.webContents.send("fromMain", {"data":json});
+    }
   });
 });
 
 ipcMain.on("loadCheckin", (event, args) => {
   curBed = args.bed;
-  curRoom = args.room;
+
   win.loadFile(path.join(__dirname, `checkin.html`));
   win.webContents.send("fromMain", args);
+
+})
+ipcMain.on("bedClicked", (event, args) => {
+  // TODO: add logic to check not too many beds are clicked
+  // TODO: handle already clicked?
+  bedsClicked.push(args);
+  // Count private room as two beds - if beds does not equal num ppl on submit then add a warning
+  // 
+
+  // win.loadFile(path.join(__dirname, `checkin.html`));
+  win.webContents.send("bedClickedFromMain", args);
 });
 
 ipcMain.on("loadIndex", (event, args) => {  
@@ -169,7 +187,6 @@ ipcMain.on("loadIndex", (event, args) => {
 
 ipcMain.on("goToRoomPicker", (event, args) => {
   win.loadFile(path.join(__dirname, `roompicker.html`));
-  // TODO: Save args
 });
 
 ipcMain.on("updateHostel", (event, args) => {
@@ -202,6 +219,8 @@ ipcMain.on("updateHostel", (event, args) => {
         newBed.checkOutDate = bed.checkOutDate;
       }
       room.addBed(newBed);
+      //TODO: Use curData
+
     }
     fs.writeFile("assets/hostel.json", hostel.getJsonString(), (err) => {
       if (error) {
@@ -209,6 +228,7 @@ ipcMain.on("updateHostel", (event, args) => {
         return;
       } else {
         console.log("success");
+        curData = null;
       }
     });
   });

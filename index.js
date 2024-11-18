@@ -1,4 +1,6 @@
-window.api.receive("fromMain", (data) => {
+window.api.receive("fromMain", (args) => {
+    let data = args["data"]
+    // let data = args;
     let hostel = new Hostel('Hostel', []);
     for (let i = 0; i < data.length; i++) {
         let bed = data[i];
