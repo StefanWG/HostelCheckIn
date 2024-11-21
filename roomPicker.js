@@ -42,7 +42,7 @@ window.api.send("toMain", "some data");
 
 let submitButton = document.getElementById('checkin');
 submitButton.addEventListener('click', () => {
-    // window.api.send("updateHostel", {});
+    window.api.send("updateHostel", {});
     // TODO: ask if needs to send warning - or control this on this page
     // TODO: pass to update hostel
 });

@@ -30,11 +30,17 @@ class Hostel {
                     available: bed.available,
                     checkInDate: bed.checkInDate,
                     numDays: bed.numDays,
-                    checkOutDate: bed.checkOutDate
+                    checkOutDate: bed.checkOutDate,
+                    type: bed.type
                 });
             }
         }
         return JSON.stringify(data);
+    }
+
+    getBed(room, bed) {
+        let roomObj = this.rooms.find(r => r.name === room);
+        return roomObj.beds.find(b => b.number === bed);
     }
 }
 

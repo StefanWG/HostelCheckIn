@@ -57,7 +57,7 @@
 
 /* Bed styling */
 .bed {
-    background-color: #deb887; /* Lighter brown for beds */
+    background-color: red; /* Lighter brown for beds */
     width: 50px;
     height: 50px;
     padding: 10px;
@@ -65,7 +65,7 @@
     border: 1px solid #8b4513; /* Dark brown */
     border-radius: 5px;
     text-align: center;
-    color: red;
+    color: white;
     font-weight: bold;
     cursor: pointer;
     /* display: flex; */

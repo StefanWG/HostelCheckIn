@@ -42,12 +42,18 @@ class Hostel {
                 available: bed.available,
                 checkInDate: bed.checkInDate,
                 numDays: bed.numDays,
-                checkOutDate: bed.checkOutDate
+                checkOutDate: bed.checkOutDate,
+                type: bed.type
             });
         }
     }
     return JSON.stringify(data);
   }
+
+  getBed(room, bed) {
+    let roomObj = this.rooms.find(r => r.name === room);
+    return roomObj.beds.find(b => b.number === bed);
+}
 }
 
 class Room {
@@ -120,6 +126,7 @@ class Bed {
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
 let win;
+let hostel = new Hostel('Hostel', []);  
 
 async function createWindow() {
 
@@ -136,9 +143,33 @@ async function createWindow() {
   });
 
   // Load app
+  fs.readFile("assets/hostel.json", (error, data) => {
+    if (error) {
+      console.error("error: " + error);
+      return;
+    } else {
+      console.log("success");
+    }
+    let json = JSON.parse(data);
+    for (let i = 0; i < json.length; i++) {
+      let bed = json[i];
+      let room = hostel.rooms.find(room => room.name === bed.room);
+      if (room == undefined) {
+          room = new Room(hostel, bed.room);
+          hostel.rooms.push(room);
+          hostel.numRooms++;
+      }
+      let newBed = new Bed(hostel, room, 'Single', bed.bed);
+      newBed.available = bed.available;
+      newBed.checkInDate = bed.checkInDate;
+      newBed.numDays = bed.numDays;
+      newBed.checkOutDate = bed.checkOutDate;
+      room.addBed(newBed);
+    }
+  });
+
   win.loadFile(path.join(__dirname, "index.html"));
 
-  // rest of code..
 }
 
 app.on("ready", createWindow);
@@ -170,59 +201,53 @@ ipcMain.on("loadCheckin", (event, args) => {
 
 })
 ipcMain.on("bedClicked", (event, args) => {
+  let curUrl = win.webContents.getURL().split("/")[win.webContents.getURL().split("/").length - 1];
+  if (curUrl === "roomPicker.html") {
+    bedsClicked.push(args);
+    console.log(bedsClicked);
+    win.webContents.send("bedClickedFromMain", args);
+  } else if (curUrl === "index.html") {
+    console.log("INDEX")
+  }
   // TODO: add logic to check not too many beds are clicked
   // TODO: handle already clicked?
-  bedsClicked.push(args);
   // Count private room as two beds - if beds does not equal num ppl on submit then add a warning
   // 
 
   // win.loadFile(path.join(__dirname, `checkin.html`));
-  win.webContents.send("bedClickedFromMain", args);
+  // win.webContents.send("bedClickedFromMain", args);
 });
 
 ipcMain.on("loadIndex", (event, args) => {  
-  console.log("HERE");
   win.loadFile(path.join(__dirname, `index.html`));
 });
 
 ipcMain.on("goToRoomPicker", (event, args) => {
+  curData = args;
   win.loadFile(path.join(__dirname, `roompicker.html`));
 });
 
 ipcMain.on("updateHostel", (event, args) => {
-  console.log(args);
-  let hostel = new Hostel('Hostel', []);
-
-  fs.readFile("assets/hostel.json", (error, data) => {
-    if (error) {
-      console.error("error: " + error);
-      return;
-    } else {
-      console.log("success");
-    }
-    let json = JSON.parse(data);
-    for (let i = 0; i < json.length; i++) {
-      let bed = json[i];
-      let room = hostel.rooms.find(room => room.name === bed.room);
-      if (room == undefined) {
-          room = new Room(hostel, bed.room);
-          hostel.rooms.push(room);
-          hostel.numRooms++;
-      }
-      let newBed = new Bed(hostel, room, 'Single', bed.bed);
-      if (newBed.number == curBed && room.name == curRoom) {
-        newBed.checkIn(args.numDays);
+    let numBedsClicked = 0;
+    for (let bed of bedsClicked) {
+      let bedObj = hostel.getBed(bed.room, bed.bed);
+      let type = bedObj.type;
+      if (type === "Single") {
+        numBedsClicked ++;
       } else {
-        newBed.available = bed.available;
-        newBed.checkInDate = bed.checkInDate;
-        newBed.numDays = bed.numDays;
-        newBed.checkOutDate = bed.checkOutDate;
-      }
-      room.addBed(newBed);
-      //TODO: Use curData
-
+        numBedsClicked += 2;
+      } 
     }
-    fs.writeFile("assets/hostel.json", hostel.getJsonString(), (err) => {
+    if (numBedsClicked < curData.numppl) { 
+      //TODO: Handle no enough beds clicked
+      window.api.send("notEnoughBedsClicked", {});
+    } else if (numBedsClicked === curData.numppl) {
+      // Update beds with check in, save file and load index page.
+      win.loadFile(path.join(__dirname, `index.html`));
+    } else {
+      
+    }
+    fs.writeFile("assets/hostel.json", hostel.getJsonString(), (error) => {
       if (error) {
         console.error("error: " + error);
         return;
@@ -231,8 +256,5 @@ ipcMain.on("updateHostel", (event, args) => {
         curData = null;
       }
     });
-  });
-
-
   win.loadFile(path.join(__dirname, `index.html`));
 });
