@@ -1,93 +1,146 @@
-/* General body styling */
+/* General styling for body */
 body {
     font-family: 'Arial', sans-serif;
-    margin: 20px;
-    background-color: #f8f9fa; /* Light background */
+    margin: 0;
+    padding: 0;
+    background-color: #f8f8f8;
     color: #333;
-}
-
-/* Controls section */
-#controls {
     display: flex;
+    flex-direction: column;
     align-items: center;
-    gap: 10px;
-    margin-bottom: 20px;
-    padding: 10px;
-    background-color: #fff;
-    border-radius: 5px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    padding: 20px;
 }
 
-#controls label {
-    font-size: 1rem;
+/* Title styling */
+#title {
+    font-size: 2rem;
     font-weight: bold;
+    margin-bottom: 20px;
+    color: #8b4513;
+    text-align: center;
 }
 
-#controls input {
-    padding: 8px 10px;
-    font-size: 1rem;
+/* Form styling */
+form {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    max-width: 400px;
+    width: 100%;
+    background-color: #fff;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    margin-bottom: 20px;
+}
+
+/* Form inputs */
+input[type="date"],
+input[type="number"],
+input[type="text"] {
+    display: block;
+    width: calc(100% - 20px);
+    padding: 10px;
+    margin: 10px 0;
     border: 1px solid #ccc;
     border-radius: 5px;
-    box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.1);
-    transition: border-color 0.3s;
+    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.05);
+    font-size: 1rem;
 }
 
-#controls input:focus {
-    border-color: #007bff;
+/* Input focus state */
+input:focus {
     outline: none;
+    border-color: #8b4513;
 }
 
-/* Table styling */
-table {
-    width: 100%;
-    border-collapse: collapse;
-    margin-top: 10px;
-    background-color: #fff;
-    border-radius: 8px;
-    overflow: hidden;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+/* Payment section */
+/* Container for the radio button tabs */
+#payment {
+    display: flex;
+    flex-direction: column; /* Stack tabs and inputs vertically */
+    margin-top: 15px;
 }
 
-thead {
-    background-color: #007bff; /* Primary color for header */
+/* Tabs container */
+#tab-container {
+    display: flex;
+}
+
+/* Styling for radio buttons as tabs */
+#payment input[type="radio"] {
+    display: none; /* Hide the original radio buttons */
+}
+
+#payment label {
+    padding: 10px 20px;
+    border: 1px solid #ccc;
+    border-radius: 5px 5px 0 0;
+    cursor: pointer;
+    margin-right: 5px;
+    background-color: #f0f0f0;
+    color: #333;
+    font-weight: bold;
+    transition: background-color 0.3s ease;
+}
+
+/* Active tab styling */
+#payment label.active {
+    background-color: #8b4513; /* Highlighted color for the active tab */
     color: white;
 }
 
-thead th {
-    text-align: left;
-    padding: 12px 15px;
-    font-size: 1rem;
-    cursor: pointer;
-    transition: background-color 0.3s;
+/* Hover effect */
+#payment label:hover {
+    background-color: #b57f4a;
 }
 
-thead th:hover {
-    background-color: #0056b3;
+/* Input fields container */
+#input-container {
+    border: 1px solid #ccc;
+    border-radius: 0 5px 5px 5px;
+    padding: 15px;
+    background-color: #fff;
 }
 
-tbody tr {
-    border-bottom: 1px solid #ddd;
-    transition: background-color 0.3s;
-}
 
-tbody tr:nth-child(even) {
-    background-color: #f8f9fa;
-}
 
-tbody tr:hover {
-    background-color: #f1f1f1;
-}
-
-tbody td {
-    padding: 12px 15px;
-    font-size: 0.95rem;
-}
-
-/* Table footer for sorting hints (optional) */
-tfoot {
-    background-color: #f8f9fa;
-    text-align: center;
-    font-size: 0.85rem;
+/* Specific styling for payment input fields */
+#ccPayment,
+#cashNotes {
+    width: calc(100% - 20px);
+    margin: 10px 0;
     padding: 10px;
-    color: #666;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+}
+
+/* Buttons */
+button {
+    padding: 10px 20px;
+    margin: 10px 5px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 1rem;
+    transition: background-color 0.3s ease;
+}
+
+/* Button styles */
+#pickrooms {
+    background-color: #32cd32;
+    color: white;
+}
+
+#pickrooms:hover {
+    background-color: #28a428;
+}
+
+#cancel {
+    background-color: #ff4d4d;
+    color: white;
+}
+
+#cancel:hover {
+    background-color: #d43d3d;
 }
