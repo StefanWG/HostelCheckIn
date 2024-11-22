@@ -28,5 +28,15 @@ checkInBUtton.addEventListener('click', () => {
     window.api.send("loadCheckin", {});
 });
 
+let updateButton = document.getElementById('update');
+updateButton.addEventListener('click', () => {
+    window.api.send("reload", {});
+});
+
+let checkoutButtom = document.getElementById('checkout');
+checkoutButtom.addEventListener('click', () => {
+    window.api.send("loadCheckout", {});
+});
+
 //TODO: Different color if bed is occupied but unpaid
 

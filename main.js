@@ -8,6 +8,8 @@ const {
 } = require("electron");
 const path = require("path");
 const fs = require("fs");
+const ExcelJS = require('exceljs');
+
 
 class Hostel {
   constructor(name, rooms) {
@@ -123,10 +125,38 @@ class Bed {
   }
 }
 
+function createExcel(fp) {
+  const workbook = new ExcelJS.Workbook();
+  workbook.xlsx.writeFile(`assets/${fp}`);
+  return workbook;
+}
+
+function addMonth(workbook, month, fp) {
+  let sheet = workbook.addWorksheet(month);
+  sheet.columns = [
+    {header: "Date", key: "date", width: 10},
+    {header: "First Name", key: "fname", width: 32},
+    {header: "Last Name", key: "lname", width: 32},
+    {header: "Country", key: "country", width: 15},
+    {header: "Passport #", key:"passport", width: 15},
+  ]
+
+  workbook.xlsx.writeFile(`assets/${fp}`);
+  return sheet;
+
+}
+
+function checkHostelMatchesSpreadsheet(hostel, sheet) {
+  //TODO: call this periodically to make sure everything is synced.
+  return;
+}
+
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
 let win;
 let hostel = new Hostel('Hostel', []);  
+let curBed;
+let curRoom;
 
 async function createWindow() {
 
@@ -168,6 +198,10 @@ async function createWindow() {
     }
   });
 
+  let wb = createExcel("hostel.xlsx");
+  addMonth(wb, "January", "hostel.xlsx");
+
+
   win.loadFile(path.join(__dirname, "index.html"));
 
 }
@@ -194,7 +228,6 @@ ipcMain.on("toMain", (event, args) => {
 });
 
 ipcMain.on("loadCheckin", (event, args) => {
-  curBed = args.bed;
 
   win.loadFile(path.join(__dirname, `checkin.html`));
   win.webContents.send("fromMain", args);
@@ -202,12 +235,14 @@ ipcMain.on("loadCheckin", (event, args) => {
 })
 ipcMain.on("bedClicked", (event, args) => {
   let curUrl = win.webContents.getURL().split("/")[win.webContents.getURL().split("/").length - 1];
-  if (curUrl === "roomPicker.html") {
+  if (curUrl === "roompicker.html") {
     bedsClicked.push(args);
     console.log(bedsClicked);
     win.webContents.send("bedClickedFromMain", args);
   } else if (curUrl === "index.html") {
-    console.log("INDEX")
+    curBed = args.bed;
+    curRoom = args.room;
+    win.loadFile(path.join(__dirname, `update.html`));
   }
   // TODO: add logic to check not too many beds are clicked
   // TODO: handle already clicked?
@@ -216,6 +251,10 @@ ipcMain.on("bedClicked", (event, args) => {
 
   // win.loadFile(path.join(__dirname, `checkin.html`));
   // win.webContents.send("bedClickedFromMain", args);
+});
+
+ipcMain.on("reload", (event, args) => {
+  win.webContents.reload();
 });
 
 ipcMain.on("loadIndex", (event, args) => {  
@@ -238,23 +277,37 @@ ipcMain.on("updateHostel", (event, args) => {
         numBedsClicked += 2;
       } 
     }
-    if (numBedsClicked < curData.numppl) { 
+    console.log(numBedsClicked, curData.numppl);
+    let numppl = parseInt(curData.numppl);
+
+    if (numBedsClicked < numppl) { 
       //TODO: Handle no enough beds clicked
-      window.api.send("notEnoughBedsClicked", {});
-    } else if (numBedsClicked === curData.numppl) {
+      // win.api.send("notEnoughBedsClicked", {});
+    } else if (numBedsClicked == numppl) {
+      console.log("HERE");
       // Update beds with check in, save file and load index page.
+      for (let bed of bedsClicked) {
+        let bedObj = hostel.getBed(bed.room, bed.bed);
+        bedObj.checkIn(curData.numDays);
+      }
+      let jsonString = hostel.getJsonString();
+      console.log(jsonString)
+      fs.writeFile("assets/hostel.json", hostel.getJsonString(), (error) => {
+        if (error) {
+          console.error("error: " + error);
+          return;
+        } else {
+          console.log("success");
+          curData = null;
+        }
+      });
       win.loadFile(path.join(__dirname, `index.html`));
     } else {
       
     }
-    fs.writeFile("assets/hostel.json", hostel.getJsonString(), (error) => {
-      if (error) {
-        console.error("error: " + error);
-        return;
-      } else {
-        console.log("success");
-        curData = null;
-      }
-    });
-  win.loadFile(path.join(__dirname, `index.html`));
+});
+
+ipcMain.on("loadCheckout", (event, args) => {
+  win.loadFile(path.join(__dirname, `checkoutlist.html`));
+
 });

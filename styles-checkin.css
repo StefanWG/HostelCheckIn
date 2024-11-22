@@ -1,146 +1,93 @@
-/* General styling for body */
+/* General body styling */
 body {
     font-family: 'Arial', sans-serif;
-    margin: 0;
-    padding: 0;
-    background-color: #f8f8f8;
+    margin: 20px;
+    background-color: #f8f9fa; /* Light background */
     color: #333;
+}
+
+/* Controls section */
+#controls {
     display: flex;
-    flex-direction: column;
     align-items: center;
-    padding: 20px;
-}
-
-/* Title styling */
-#title {
-    font-size: 2rem;
-    font-weight: bold;
+    gap: 10px;
     margin-bottom: 20px;
-    color: #8b4513;
-    text-align: center;
-}
-
-/* Form styling */
-form {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    max-width: 400px;
-    width: 100%;
-    background-color: #fff;
-    padding: 20px;
-    border-radius: 8px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    margin-bottom: 20px;
-}
-
-/* Form inputs */
-input[type="date"],
-input[type="number"],
-input[type="text"] {
-    display: block;
-    width: calc(100% - 20px);
     padding: 10px;
-    margin: 10px 0;
+    background-color: #fff;
+    border-radius: 5px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+#controls label {
+    font-size: 1rem;
+    font-weight: bold;
+}
+
+#controls input {
+    padding: 8px 10px;
+    font-size: 1rem;
     border: 1px solid #ccc;
     border-radius: 5px;
-    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.05);
-    font-size: 1rem;
+    box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.1);
+    transition: border-color 0.3s;
 }
 
-/* Input focus state */
-input:focus {
+#controls input:focus {
+    border-color: #007bff;
     outline: none;
-    border-color: #8b4513;
 }
 
-/* Payment section */
-/* Container for the radio button tabs */
-#payment {
-    display: flex;
-    flex-direction: column; /* Stack tabs and inputs vertically */
-    margin-top: 15px;
-}
-
-/* Tabs container */
-#tab-container {
-    display: flex;
-}
-
-/* Styling for radio buttons as tabs */
-#payment input[type="radio"] {
-    display: none; /* Hide the original radio buttons */
-}
-
-#payment label {
-    padding: 10px 20px;
-    border: 1px solid #ccc;
-    border-radius: 5px 5px 0 0;
-    cursor: pointer;
-    margin-right: 5px;
-    background-color: #f0f0f0;
-    color: #333;
-    font-weight: bold;
-    transition: background-color 0.3s ease;
-}
-
-/* Active tab styling */
-#payment label.active {
-    background-color: #8b4513; /* Highlighted color for the active tab */
-    color: white;
-}
-
-/* Hover effect */
-#payment label:hover {
-    background-color: #b57f4a;
-}
-
-/* Input fields container */
-#input-container {
-    border: 1px solid #ccc;
-    border-radius: 0 5px 5px 5px;
-    padding: 15px;
+/* Table styling */
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 10px;
     background-color: #fff;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 
-
-
-/* Specific styling for payment input fields */
-#ccPayment,
-#cashNotes {
-    width: calc(100% - 20px);
-    margin: 10px 0;
-    padding: 10px;
-    border: 1px solid #ccc;
-    border-radius: 5px;
+thead {
+    background-color: #007bff; /* Primary color for header */
+    color: white;
 }
 
-/* Buttons */
-button {
-    padding: 10px 20px;
-    margin: 10px 5px;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
+thead th {
+    text-align: left;
+    padding: 12px 15px;
     font-size: 1rem;
-    transition: background-color 0.3s ease;
+    cursor: pointer;
+    transition: background-color 0.3s;
 }
 
-/* Button styles */
-#pickrooms {
-    background-color: #32cd32;
-    color: white;
+thead th:hover {
+    background-color: #0056b3;
 }
 
-#pickrooms:hover {
-    background-color: #28a428;
+tbody tr {
+    border-bottom: 1px solid #ddd;
+    transition: background-color 0.3s;
 }
 
-#cancel {
-    background-color: #ff4d4d;
-    color: white;
+tbody tr:nth-child(even) {
+    background-color: #f8f9fa;
 }
 
-#cancel:hover {
-    background-color: #d43d3d;
+tbody tr:hover {
+    background-color: #f1f1f1;
+}
+
+tbody td {
+    padding: 12px 15px;
+    font-size: 0.95rem;
+}
+
+/* Table footer for sorting hints (optional) */
+tfoot {
+    background-color: #f8f9fa;
+    text-align: center;
+    font-size: 0.85rem;
+    padding: 10px;
+    color: #666;
 }
