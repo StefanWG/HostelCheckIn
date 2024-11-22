@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+
+<html>
+<head>
+    <title>My Web Page</title>
+    <script src="src/bed.js"></script>
+    <script src="src/room.js"></script>
+    <script src="src/hostel.js"></script>
+    <script src="checkoutlist.js" defer type="module"></script>
+    <link rel="stylesheet" href="styles-checkout.css">
+</head>
+<body>
+    <div id="nav">
+        <button id="checkin">Check In</button>
+        <button id="guests">Guests</button>
+        <button id="checkout">Check Out List</button>
+        <button id="update">Update</button>
+    </div>
+    <div id="main">
+    <div id="controls">
+        <label for="filter-date">Filter by Date:</label>
+        <input type="date" id="filter-date">
+    </div>
+    <table id="dynamic-table">
+        <thead>
+            <tr>
+                <th data-sort="name">Name</th>
+                <th data-sort="age">Age</th>
+                <th data-sort="date">Date</th>
+            </tr>
+        </thead>
+        <tbody>
+            <!-- Rows will be dynamically generated -->
+        </tbody>
+    </table>
+    </div>
+</body>
+</html>
