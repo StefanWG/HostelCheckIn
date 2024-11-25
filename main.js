@@ -1,6 +1,5 @@
 // TODO: Language thing (esp, eng)
 
-
 const {
   app,
   BrowserWindow,
@@ -10,6 +9,8 @@ const path = require("path");
 const fs = require("fs");
 const ExcelJS = require('exceljs');
 
+const EXCEL_FP = "hostel.xlsx";
+const EXCEL = createExcel(false);
 
 class Hostel {
   constructor(name, rooms) {
@@ -115,6 +116,7 @@ class Bed {
   }
 
   checkIn(numDays) {
+      //TODO: USE CHEKC IN DATE
       let d = new Date();
       this.numDays = parseInt(numDays);
       this.available = false;
@@ -123,26 +125,91 @@ class Bed {
       temp.setDate(temp.getDate() + this.numDays); 
       this.checkOutDate = new Date(temp.getFullYear(), temp.getMonth(), temp.getDate());
   }
+
+  checkOut() {
+    let d = new Date();
+    let today = new Date(d.getFullYear(), d.getMonth(), d.getDate())
+
+    if (this.available) {
+      return false;
+    } else {
+      if (this.checkOutDate.getTime() <= today.getTime()) {
+
+        this.available = true;
+        this.checkInDate = null;
+        this.numDays = null;
+        this.checkOutDate = null;
+        return true;
+      }
+    }
+  }
 }
 
-function createExcel(fp) {
-  const workbook = new ExcelJS.Workbook();
-  workbook.xlsx.writeFile(`assets/${fp}`);
-  return workbook;
+function createExcel(override) {
+  if (override) {
+    const workbook = new ExcelJS.Workbook();
+    workbook.xlsx.writeFile(`assets/${override}`);
+    return workbook;
+  } else {
+    if (fs.existsSync(`assets/${EXCEL_FP}`)) {
+      const workbook = new ExcelJS.Workbook();
+      workbook.xlsx.readFile(`assets/${EXCEL_FP}`);
+      return workbook;
+    } else {
+      const workbook = new ExcelJS.Workbook();
+      workbook.xlsx.writeFile(`assets/${EXCEL_FP}`);
+      return workbook;
+    }
+  }
 }
 
-function addMonth(workbook, month, fp) {
+function getWorkSheet(wb, month) {
+  for (let sheet of wb.worksheets) {
+    if (sheet.name === month) {
+      sheet.columns = sheet.columns = [
+        {header: "Date", key: "checkInDate", width: 10},
+        {header: "First Name", key: "fname", width: 32},
+        {header: "Last Name", key: "lname", width: 32},
+        {header: "People", key: "numppl", width: 10},
+        {header: "Nights", key: "numDays", width: 10},
+        {header: "Country", key: "country", width: 15},
+        {header: "Passport #", key:"passport", width: 15},
+      ]
+      return sheet;
+    }
+  }
+  return addMonth(wb, month);
+}
+
+function addMonth(workbook, month,) {
   let sheet = workbook.addWorksheet(month);
   sheet.columns = [
-    {header: "Date", key: "date", width: 10},
+    {header: "Date", key: "checkInDate", width: 10},
     {header: "First Name", key: "fname", width: 32},
     {header: "Last Name", key: "lname", width: 32},
+    {header: "People", key: "numppl", width: 10},
+    {header: "Nights", key: "numDays", width: 10},
     {header: "Country", key: "country", width: 15},
     {header: "Passport #", key:"passport", width: 15},
   ]
 
-  workbook.xlsx.writeFile(`assets/${fp}`);
+  workbook.xlsx.writeFile(`assets/${EXCEL_FP}`);
   return sheet;
+}
+
+function addEntry(wb, args) {
+  console.log(args);
+  let date = new Date();
+  let month = date.toLocaleString('default', { month: 'long' });
+  let sheet = getWorkSheet(wb, month);
+
+  let row = {};
+  for (let key in args) {
+    row[key] = args[key];
+  }
+
+  sheet.addRow(row);
+  wb.xlsx.writeFile(`assets/${EXCEL_FP}`);
 
 }
 
@@ -191,17 +258,12 @@ async function createWindow() {
       }
       let newBed = new Bed(hostel, room, 'Single', bed.bed);
       newBed.available = bed.available;
-      newBed.checkInDate = bed.checkInDate;
+      newBed.checkInDate = new Date(bed.checkInDate);
       newBed.numDays = bed.numDays;
-      newBed.checkOutDate = bed.checkOutDate;
+      newBed.checkOutDate = new Date(bed.checkOutDate);
       room.addBed(newBed);
     }
   });
-
-  let wb = createExcel("hostel.xlsx");
-  addMonth(wb, "January", "hostel.xlsx");
-
-
   win.loadFile(path.join(__dirname, "index.html"));
 
 }
@@ -236,8 +298,18 @@ ipcMain.on("loadCheckin", (event, args) => {
 ipcMain.on("bedClicked", (event, args) => {
   let curUrl = win.webContents.getURL().split("/")[win.webContents.getURL().split("/").length - 1];
   if (curUrl === "roompicker.html") {
-    bedsClicked.push(args);
+    let alreadyClicked  = false;
+    for (let bed of bedsClicked) {
+      if (bed.bed === args.bed && bed.room === args.room) {
+        alreadyClicked = true;
+        bedsClicked = bedsClicked.filter(b => b.bed !== args.bed && b.room !== args.room);
+      }
+    }
+    if (!alreadyClicked) {
+      bedsClicked.push(args);
+    }
     console.log(bedsClicked);
+
     win.webContents.send("bedClickedFromMain", args);
   } else if (curUrl === "index.html") {
     curBed = args.bed;
@@ -254,6 +326,23 @@ ipcMain.on("bedClicked", (event, args) => {
 });
 
 ipcMain.on("reload", (event, args) => {
+  for (let room of hostel.rooms) {
+    for (let bed of room.beds) {
+      if (bed.checkOut()) {
+        console.log("Checked out bed: " + bed.number);
+      }
+    }
+  }
+
+  fs.writeFile("assets/hostel.json", hostel.getJsonString(), (error) => {
+    if (error) {
+      console.error("error: " + error);
+      return;
+    } else {
+      console.log("success");
+      curData = null;
+    }
+  });
   win.webContents.reload();
 });
 
@@ -262,6 +351,7 @@ ipcMain.on("loadIndex", (event, args) => {
 });
 
 ipcMain.on("goToRoomPicker", (event, args) => {
+  bedsClicked = [];
   curData = args;
   win.loadFile(path.join(__dirname, `roompicker.html`));
 });
@@ -301,6 +391,10 @@ ipcMain.on("updateHostel", (event, args) => {
           curData = null;
         }
       });
+
+      //Write to excel
+      addEntry(EXCEL, curData);
+
       win.loadFile(path.join(__dirname, `index.html`));
     } else {
       

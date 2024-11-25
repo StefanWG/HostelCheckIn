@@ -68,3 +68,8 @@ document.addEventListener('DOMContentLoaded', function () {
     // Initial render
     renderTable(tableData);
 });
+
+let homeButton = document.getElementById('home');
+homeButton.addEventListener('click', () => {
+    window.api.send("loadIndex", {});
+});
