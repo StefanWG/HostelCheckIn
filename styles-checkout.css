@@ -145,3 +145,7 @@ tbody td {
         margin-bottom: 5px;
     }
 }
+
+.spacer {
+    background-color: darkgray !important;
+}

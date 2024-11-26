@@ -60,6 +60,7 @@ class Hostel {
   }
 
   getBed(room, bed) {
+    console.log(room, bed)
     let roomObj = this.rooms.find(r => r.name === room);
     return roomObj.beds.find(b => b.number === bed);
 }
@@ -246,8 +247,22 @@ function checkHostelMatchesSpreadsheet(hostel, sheet) {
 }
 
 function SQLInsert(table, columns, values) {
-  let sql = `INSERT INTO ${table} (${columns.join(",")}) VALUES (${values.join(",")})`;
+  let sql = `INSERT INTO ${table} (${columns.join(", ")}) VALUES (${values.join(", ")});`;
   return sql;
+}
+
+function SQLCheckIn(args, room, bed) {
+  console.log("SQL CHECK IN")
+  console.log(args);
+  let sql = 
+  `UPDATE beds 
+  SET available = 0,
+  checkInDate = "${args.checkInDate.getFullYear()}-${args.checkInDate.getMonth()+1}-${args.checkInDate.getDate()}", 
+  numDays = ${args.numDays}, 
+  checkOutDate = "${args.checkOutDate.getFullYear()}-${args.checkOutDate.getMonth()+1}-${args.checkOutDate.getDate()}"
+  WHERE bed = "${bed}" AND room = "${room}";`;
+  console.log(sql)
+  DB.run(sql);
 }
 
 // Keep a global reference of the window object, if you don't, the window will
@@ -270,7 +285,6 @@ async function createWindow() {
       preload: path.join(__dirname, "preload.js") // use a preload script
     }
   });
-
   DB.run(
     `CREATE TABLE IF NOT EXISTS rooms (
       roomID INTEGER PRIMARY KEY,
@@ -282,11 +296,12 @@ async function createWindow() {
     `CREATE TABLE IF NOT EXISTS beds (
       bedID INTEGER PRIMARY KEY,
       roomID INTEGER, 
+      room TEXT,
       bed TEXT, 
       available BOOLEAN, 
       checkInDate TEXT, 
       numDays INTEGER, 
-      checkOutDate INTEGER, 
+      checkOutDate TEXT, 
       type TEXT,
       guestID INTEGER
     )`
@@ -309,8 +324,38 @@ async function createWindow() {
     )`
   );
 
-  
 
+  // ONE TIME USE
+  // fs.readFile("assets/hostel.json", (error, data) => {
+  //   if (error) {
+  //     console.error("error: " + error);
+  //     return;
+  //   } else {
+  //     console.log("success");
+  //   }
+  //   let json = JSON.parse(data);
+  //   let inserted = [];
+  //   let curId = 1;
+  //   for (let i = 0; i < json.length; i++) {
+  //     if (!inserted.includes(json[i].room)) {
+  //       let sql = SQLInsert("rooms", ["name", "numBeds"], [`"${json[i].room}"`, 1]);
+  //       DB.run(sql);
+  //       inserted[json[i].room] = curId;
+  //       curId++;
+  //     } else {
+  //       let sql = "UPDATE rooms SET numBeds = numBeds + 1 WHERE name = " + `"${json[i].room}"`;
+  //       DB.run(sql);
+  //     }
+
+      
+  //     let roomID = inserted[json[i].room];
+  //     let sql = SQLInsert("beds", 
+  //       ["roomID", "room", "bed", "available", "type"], 
+  //       [roomID, `"${json[i].room}"`, `"${json[i].bed}"`, "TRUE", `"Single"`]
+  //     );
+  //     DB.run(sql);
+  //   }
+  // });
 
 
   // Load app
@@ -349,7 +394,6 @@ let curData = null;
 let bedsClicked = [];
 let numBedsClicked = 0;
 
-
 ipcMain.on("toMain", (event, args) => {
   if (args === "guests") {
     let sheet = getWorkSheet(EXCEL);
@@ -368,25 +412,28 @@ ipcMain.on("toMain", (event, args) => {
     win.webContents.send("fromMain", {"data": data});
     return;
   } else if (args === "checkoutlist") {
-    for (let room of hostel.rooms) {
-      for (let bed of room.beds) {
-        if (!bed.available) {
-          // TODO: RETURN ALL BEDS AND THEN IN CHECKOUTLIST.js filter them
-        }
+    DB.all(`SELECT * FROM beds;`, (err, rows) => {
+      if (err) { console.error(err); } else {
+        let data = [];
+        for (let row of rows) { data.push(row); }
+        win.webContents.send("fromMain", {"data":data});
       }
-    }
+    });
 
   }
-  fs.readFile("assets/hostel.json", (error, data) => {
-    // Do something with file contents
-    let json = JSON.parse(data);
-    // Send result back to renderer process
-    if (curData != null) {
-      win.webContents.send("fromMain", {"data":json, "numppl":curData.numppl});
-    } else {
-      win.webContents.send("fromMain", {"data":json});
+
+  DB.all(`SELECT * FROM beds`, (err, rows) => {
+    if (err) { console.error(err); } else {
+      let data = [];
+      for (let row of rows) { data.push(row); }
+      if (curData != null) {
+        win.webContents.send("fromMain", {"data":data, "numppl":curData.numppl});
+      } else {
+        win.webContents.send("fromMain", {"data":data});
+      }    
     }
   });
+
 });
 
 ipcMain.on("bedClicked", (event, args) => {
@@ -402,7 +449,6 @@ ipcMain.on("bedClicked", (event, args) => {
     if (!alreadyClicked) {
       bedsClicked.push(args);
     }
-    console.log(bedsClicked);
 
     win.webContents.send("bedClickedFromMain", args);
   } else if (curUrl === "index.html") {
@@ -411,21 +457,12 @@ ipcMain.on("bedClicked", (event, args) => {
     win.loadFile(path.join(__dirname, `update.html`));
   }
   // TODO: add logic to check not too many beds are clicked
-  // TODO: handle already clicked?
   // Count private room as two beds - if beds does not equal num ppl on submit then add a warning
-  // 
-
-  // win.loadFile(path.join(__dirname, `checkin.html`));
-  // win.webContents.send("bedClickedFromMain", args);
 });
 
 ipcMain.on("reload", (event, args) => {
   for (let room of hostel.rooms) {
-    for (let bed of room.beds) {
-      if (bed.checkOut()) {
-        console.log("Checked out bed: " + bed.number);
-      }
-    }
+    for (let bed of room.beds) { bed.checkOut();}
   }
 
   fs.writeFile("assets/hostel.json", hostel.getJsonString(), (error) => {
@@ -441,47 +478,42 @@ ipcMain.on("reload", (event, args) => {
 });
 
 ipcMain.on("updateHostel", (event, args) => {
-    let numBedsClicked = 0;
-    for (let bed of bedsClicked) {
-      let bedObj = hostel.getBed(bed.room, bed.bed);
-      let type = bedObj.type;
-      if (type === "Single") {
-        numBedsClicked ++;
-      } else {
-        numBedsClicked += 2;
-      } 
-    }
+    // let numBedsClicked = 0;
+    // console.log(hostel);
+    // for (let bed of bedsClicked) {
+    //   let bedObj = hostel.getBed(bed.room, bed.bed);
+    //   let type = bedObj.type;
+    //   if (type === "Single") {
+    //     numBedsClicked ++;
+    //   } else {
+    //     numBedsClicked += 2;
+    //   } 
+    // }
+    //TODO: handle num beds clicked
     console.log(numBedsClicked, curData.numppl);
-    let numppl = parseInt(curData.numppl);
-
-    if (numBedsClicked < numppl) { 
-      //TODO: Handle no enough beds clicked
-      // win.api.send("notEnoughBedsClicked", {});
-    } else if (numBedsClicked == numppl) {
-      console.log("HERE");
-      // Update beds with check in, save file and load index page.
-      for (let bed of bedsClicked) {
-        let bedObj = hostel.getBed(bed.room, bed.bed);
-        bedObj.checkIn(curData.numDays);
-      }
-      let jsonString = hostel.getJsonString();
-      console.log(jsonString)
-      fs.writeFile("assets/hostel.json", hostel.getJsonString(), (error) => {
-        if (error) {
-          console.error("error: " + error);
-          return;
-        } else {
-          console.log("success");
-        }
-      });
-
-      //Write to excel
-      addEntry(EXCEL, curData);
-      curData = null;
-      win.loadFile(path.join(__dirname, `index.html`));
-    } else {
-      
+    for (let bed of bedsClicked) {
+      SQLCheckIn(curData, bed.room, bed.bed);
     }
+  
+    curData = null;
+    win.loadFile(path.join(__dirname, `index.html`));
+    // let numppl = parseInt(curData.numppl);
+
+    // if (numBedsClicked < numppl) { 
+    //   //TODO: Handle no enough beds clicked
+    //   // win.api.send("notEnoughBedsClicked", {});
+    // } else if (numBedsClicked == numppl) {
+    //   console.log("HERE");
+    //   // Update beds with check in, save file and load index page.
+    //   for (let bed of bedsClicked) {
+    //     SQLCheckIn(curData);
+    //   }
+    
+    //   curData = null;
+    //   win.loadFile(path.join(__dirname, `index.html`));
+    // } else {
+      
+    // }
 });
 
 ipcMain.on("load", (event, args) => {

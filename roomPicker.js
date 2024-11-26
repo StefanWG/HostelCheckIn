@@ -20,7 +20,10 @@ window.api.receive("fromMain", (args) => {
         newBed.checkOutDate = bed.checkOutDate;
         room.addBed(newBed);
     }
-    console.log("here");
+    hostel.rooms.sort((a, b) => a.name - b.name);
+    for (let room of hostel.rooms) {
+        room.beds.sort((a, b) => a.number - b.number);
+    }
     hostel.displayRooms(main);
 });
 
