@@ -23,7 +23,6 @@ const CHECKOUTLIST_FP = "checkoutlist.xlsx";
 const EXCEL_CHECKOUTLIST = createExcel(CHECKOUTLIST_FP, false);
 const DB = new sqlite3.Database('hostel.db');
 
-// class Bed {
 //   constructor(hostel, room, type, number) {
 //       this.hostel = hostel;
 //       this.room = room;
@@ -162,7 +161,7 @@ async function createWindow() {
       room.addBed(newBed);
     }
   });
-  win.loadFile(path.join(__dirname, "index.html"));
+  win.loadFile(path.join(__dirname, "src/html/index.html"));
 }
 
 app.on("ready", createWindow);
@@ -232,7 +231,7 @@ ipcMain.on("bedClicked", (event, args) => {
   } else if (curUrl === "index.html") {
     curBed = args.bed;
     curRoom = args.room;
-    win.loadFile(path.join(__dirname, `update.html`));
+    win.loadFile(path.join(__dirname, `src/html/update.html`));
   }
   // TODO: add logic to check not too many beds are clicked
   // Count private room as two beds - if beds does not equal num ppl on submit then add a warning
@@ -274,7 +273,7 @@ ipcMain.on("updateHostel", (event, args) => {
     }
   
     curData = null;
-    win.loadFile(path.join(__dirname, `index.html`));
+    win.loadFile(path.join(__dirname, `src/html/index.html`));
     // let numppl = parseInt(curData.numppl);
 
     // if (numBedsClicked < numppl) { 
@@ -296,19 +295,19 @@ ipcMain.on("updateHostel", (event, args) => {
 
 ipcMain.on("load", (event, args) => {
   if (args["page"] === "index") {
-    win.loadFile(path.join(__dirname, `index.html`));
+    win.loadFile(path.join(__dirname, `src/html/index.html`));
   } else if (args["page"] === "checkout") {
-    win.loadFile(path.join(__dirname, `checkoutlist.html`));
+    win.loadFile(path.join(__dirname, `src/html/checkoutlist.html`));
   } else if (args["page"] === "guests") {
-    win.loadFile(path.join(__dirname, `guests.html`));
+    win.loadFile(path.join(__dirname, `src/html/guests.html`));
   } else if (args["page"] === "checkin") {
-    win.loadFile(path.join(__dirname, `checkin.html`));
+    win.loadFile(path.join(__dirname, `src/html/checkin.html`));
     delete args["page"];
     win.webContents.send("fromMain", args);
   } else if (args["page"] === "roompicker") {
     bedsClicked = [];
     delete args["page"];
     curData = args;
-    win.loadFile(path.join(__dirname, `roompicker.html`));
+    win.loadFile(path.join(__dirname, `src/html/roompicker.html`));
   }
 });

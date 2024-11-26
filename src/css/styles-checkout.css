@@ -10,39 +10,6 @@ body {
     align-items: center;
 }
 
-/* Navigation bar styling */
-#nav {
-    display: flex;
-    justify-content: center;
-    background-color: #f4e1d2; /* Light tan background matching other pages */
-    padding: 10px 20px;
-    border-bottom: 2px solid #8b4513; /* Consistent border for header separation */
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    margin-bottom: 20px;
-    width: 100%;
-}
-
-#nav button {
-    padding: 10px 20px;
-    border: none;
-    border-radius: 5px;
-    margin: 0 5px;
-    font-size: 1rem;
-    cursor: pointer;
-    background-color: #32cd32; /* Green buttons for consistency */
-    color: white;
-    transition: background-color 0.3s ease, transform 0.2s ease;
-}
-
-#nav button:hover {
-    background-color: #28a428; /* Darker green on hover */
-    transform: scale(1.05); /* Slight zoom on hover */
-}
-
-#nav button:active {
-    transform: scale(0.95); /* Button presses feel responsive */
-}
-
 /* Main content area */
 #main {
     width: 90%;

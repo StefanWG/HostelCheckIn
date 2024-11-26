@@ -91,46 +91,6 @@
     color: white;
 }
 
-/* Styling for the navigation container */
-#nav {
-    position: fixed;
-    top: 0px;
-    height: 50px;
-    width: 100%;
-    display: flex;
-    justify-content: center; /* Center align the button */
-    background-color: #f4e1d2; /* Light tan color for background */
-    padding: 10px 20px;
-    border-bottom: 2px solid #8b4513; /* Border for separation */
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    margin-bottom: 20px;
-    gap: 20px;
-}
-
-/* Styling for the "Check In" button */
-#nav button {
-    padding: 12px 25px;
-    border: none;
-    border-radius: 5px;
-    background-color: lightblue; /* Green background */
-    color: white;
-    font-size: 1rem;
-    cursor: pointer;
-    transition: background-color 0.3s ease, transform 0.3s ease;
-}
-
-/* Hover effect for the "Check In" button */
-#nav button:hover {
-    background-color: lightskyblue; /* Darker green on hover */
-    transform: scale(1.05); /* Slightly enlarge the button */
-}
-
-/* Active state styling for better feedback */
-#nav button:active {
-    transform: scale(0.98); /* Slightly reduce size on click */
-}
-
-
 /* General text styling for consistency */
 body {
     font-family: 'Arial', sans-serif;

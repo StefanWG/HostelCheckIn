@@ -1,3 +1,4 @@
+console.log("here")
 window.api.receive("fromMain", (args) => {
     let data = args["data"]
     // let data = args;
