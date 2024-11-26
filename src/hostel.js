@@ -44,3 +44,9 @@ class Hostel {
     }
 }
 
+try {
+    module.exports.Hostel = Hostel;
+} catch {
+    
+}
+

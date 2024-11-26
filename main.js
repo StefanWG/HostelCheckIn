@@ -8,8 +8,13 @@ const {
 } = require("electron");
 const path = require("path");
 const fs = require("fs");
-const ExcelJS = require('exceljs');
 const sqlite3 = require('sqlite3').verbose();
+
+const {SQLCheckIn, SQLInsert, createBedsTable, createRoomsTable, createGuestsTable} = require("./utils_sql.js")
+const {createExcel, getWorkSheet, addEntry} = require("./utils_excel.js");
+let {Room} = require("./src/room.js");
+let {Hostel} = require("./src/hostel.js");
+let {Bed} = require("./src/bed.js");
 
 
 const EXCEL_FP = "hostel.xlsx";
@@ -18,252 +23,63 @@ const CHECKOUTLIST_FP = "checkoutlist.xlsx";
 const EXCEL_CHECKOUTLIST = createExcel(CHECKOUTLIST_FP, false);
 const DB = new sqlite3.Database('hostel.db');
 
-class Hostel {
-  constructor(name, rooms) {
-      this.name = name;
-      this.numRooms = rooms.length;
-      this.rooms = [];
-      for (let i = 0; i < rooms.length; i++) {
-          this.rooms.push(new Room(this, rooms[i]));
-      }
-  }
+// class Bed {
+//   constructor(hostel, room, type, number) {
+//       this.hostel = hostel;
+//       this.room = room;
+//       this.type = type;
+//       this.number = number;
+//       this.available = true;
+//       this.checkInDate = null;
+//       this.numDays = null;
+//       this.checkOutDate = null;
+//   }
 
-  displayRooms() {
-      let rooms = document.createElement('div');
-      rooms.classList.add("hostel");
-      for (let i = 0; i < this.rooms.length; i++) {
-          let room = this.rooms[i].displayRoom();
-          rooms.appendChild(room);
-      }
-      return rooms;
-      // main.appendChild(rooms);
-  }
+//   displayBed() {
 
-  getJsonString () {
-    let data = [];
-    for (let i = 0; i < this.rooms.length; i++) {
-        let room = this.rooms[i];
-        for (let j = 0; j < room.beds.length; j++) {
-            let bed = room.beds[j];
-            data.push({
-                room: room.name,
-                bed: bed.number,
-                available: bed.available,
-                checkInDate: bed.checkInDate,
-                numDays: bed.numDays,
-                checkOutDate: bed.checkOutDate,
-                type: bed.type
-            });
-        }
-    }
-    return JSON.stringify(data);
-  }
+//       let bed = document.createElement('div');
+//       bed.textContent = this.number;
+//       bed.classList.add('bed');
+//       bed.classList.add(this.type);
+//       if (this.available) {
+//           bed.classList.add('available');
+//       } 
 
-  getBed(room, bed) {
-    console.log(room, bed)
-    let roomObj = this.rooms.find(r => r.name === room);
-    return roomObj.beds.find(b => b.number === bed);
-}
-}
+//       bed.onclick = () => {
+//           window.api.send("loadCheckin", {bed: this.number, room: this.room.name});
+//       };
+//       return bed;
+//   }
 
-class Room {
-  constructor(hostel, name) {
-      this.name = name;
-      this.beds = [];
-      this.hostel = hostel;
-  }
+//   checkIn(numDays) {
+//       //TODO: USE CHEKC IN DATE
+//       let d = new Date();
+//       this.numDays = parseInt(numDays);
+//       this.available = false;
+//       this.checkInDate = new Date(d.getFullYear(), d.getMonth(), d.getDate()); // TODO: Get from page
+//       let temp = new Date()
+//       temp.setDate(temp.getDate() + this.numDays); 
+//       this.checkOutDate = new Date(temp.getFullYear(), temp.getMonth(), temp.getDate());
+//   }
 
-  addBed(bed) {
-      this.beds.push(bed);
-  }
+//   checkOut() {
+//     let d = new Date();
+//     let today = new Date(d.getFullYear(), d.getMonth(), d.getDate())
 
-  displayRoom() {
-      let room = document.createElement('div');
-      let roomName = document.createElement('h2');
-      roomName.textContent = this.name;
-      room.classList.add('room');
-      room.appendChild(roomName);
-      let beds = document.createElement('div');
-      beds.classList.add('beds');
-      for (let i = 0; i < this.beds.length; i++) {
-          let bedItem = this.beds[i].displayBed();
-          beds.appendChild(bedItem);
-      }
-      room.appendChild(beds);
-      return room;
-  }
-}
+//     if (this.available) {
+//       return false;
+//     } else {
+//       if (this.checkOutDate.getTime() <= today.getTime()) {
 
-class Bed {
-  constructor(hostel, room, type, number) {
-      this.hostel = hostel;
-      this.room = room;
-      this.type = type;
-      this.number = number;
-      this.available = true;
-      this.checkInDate = null;
-      this.numDays = null;
-      this.checkOutDate = null;
-  }
-
-  displayBed() {
-
-      let bed = document.createElement('div');
-      bed.textContent = this.number;
-      bed.classList.add('bed');
-      bed.classList.add(this.type);
-      if (this.available) {
-          bed.classList.add('available');
-      } 
-
-      bed.onclick = () => {
-          window.api.send("loadCheckin", {bed: this.number, room: this.room.name});
-      };
-      return bed;
-  }
-
-  checkIn(numDays) {
-      //TODO: USE CHEKC IN DATE
-      let d = new Date();
-      this.numDays = parseInt(numDays);
-      this.available = false;
-      this.checkInDate = new Date(d.getFullYear(), d.getMonth(), d.getDate()); // TODO: Get from page
-      let temp = new Date()
-      temp.setDate(temp.getDate() + this.numDays); 
-      this.checkOutDate = new Date(temp.getFullYear(), temp.getMonth(), temp.getDate());
-  }
-
-  checkOut() {
-    let d = new Date();
-    let today = new Date(d.getFullYear(), d.getMonth(), d.getDate())
-
-    if (this.available) {
-      return false;
-    } else {
-      if (this.checkOutDate.getTime() <= today.getTime()) {
-
-        this.available = true;
-        this.checkInDate = null;
-        this.numDays = null;
-        this.checkOutDate = null;
-        return true;
-      }
-    }
-  }
-}
-
-function createExcel(fp,override) {
-  if (override) {
-    const workbook = new ExcelJS.Workbook();
-    workbook.xlsx.writeFile(`assets/${fp}`);
-    return workbook;
-  } else {
-    if (fs.existsSync(`assets/${fp}`)) {
-      const workbook = new ExcelJS.Workbook();
-      workbook.xlsx.readFile(`assets/${fp}`);
-      return workbook;
-    } else {
-      const workbook = new ExcelJS.Workbook();
-      workbook.xlsx.writeFile(`assets/${fp}`);
-      return workbook;
-    }
-  }
-}
-
-
-function getWorkSheet(wb) {
-
-  let date = new Date();
-  let month = date.toLocaleString('default', { month: 'long' });
-
-  for (let sheet of wb.worksheets) {
-    if (sheet.name === month) {
-      sheet.columns = sheet.columns = [
-        {header: "Date", key: "checkInDate", width: 10},
-        {header: "First Name", key: "fname", width: 32},
-        {header: "Last Name", key: "lname", width: 32},
-        {header: "People", key: "numppl", width: 10},
-        {header: "Nights", key: "numDays", width: 10},
-        {header: "Country", key: "country", width: 15},
-        {header: "Passport #", key:"passport", width: 15},
-        {header: "Check Out Date", key: "checkOutDate", width: 10},
-        {header: "Paid", key: "paid", width: 10},
-        {header: "Payment Method", key: "paymentMethod", width: 15},
-        {header: "Amount Paid", key: "amountPaid", width: 10},
-        {header: "Currency", key: "currency", width: 10},
-        {header: "Rooms", key: "room", width: 10},
-        {header: "Beds", key: "bed", width: 10},
-        {header: "Person", key: "person", width: 10},
-        {header: "Notes", key: "notes", width: 10}
-      ]
-      return sheet;
-    }
-  }
-  return addMonth(wb, month);
-}
-
-function addMonth(workbook, month,) {
-  let sheet = workbook.addWorksheet(month);
-  sheet.columns = [
-    {header: "Date", key: "checkInDate", width: 10},
-      {header: "First Name", key: "fname", width: 32},
-      {header: "Last Name", key: "lname", width: 32},
-      {header: "People", key: "numppl", width: 10},
-      {header: "Nights", key: "numDays", width: 10},
-      {header: "Country", key: "country", width: 15},
-      {header: "Passport #", key:"passport", width: 15},
-      {header: "Check Out Date", key: "checkOutDate", width: 10},
-      {header: "Paid", key: "paid", width: 10},
-      {header: "Payment Method", key: "paymentMethod", width: 15},
-      {header: "Amount Paid", key: "amountPaid", width: 10},
-      {header: "Currency", key: "currency", width: 10},
-      {header: "Rooms", key: "room", width: 10},
-      {header: "Beds", key: "bed", width: 10},
-      {header: "Person", key: "person", width: 10},
-      {header: "Notes", key: "notes", width: 10}
-  ]
-
-  workbook.xlsx.writeFile(`assets/${EXCEL_FP}`);
-  return sheet;
-}
-
-function addEntry(wb, args) {
-  console.log(args);
-  let sheet = getWorkSheet(wb); 
-
-  let row = {};
-  for (let key in args) {
-    row[key] = args[key];
-  }
-
-  sheet.addRow(row);
-  wb.xlsx.writeFile(`assets/${EXCEL_FP}`);
-
-}
-
-function checkHostelMatchesSpreadsheet(hostel, sheet) {
-  //TODO: call this periodically to make sure everything is synced.
-  return;
-}
-
-function SQLInsert(table, columns, values) {
-  let sql = `INSERT INTO ${table} (${columns.join(", ")}) VALUES (${values.join(", ")});`;
-  return sql;
-}
-
-function SQLCheckIn(args, room, bed) {
-  console.log("SQL CHECK IN")
-  console.log(args);
-  let sql = 
-  `UPDATE beds 
-  SET available = 0,
-  checkInDate = "${args.checkInDate.getFullYear()}-${args.checkInDate.getMonth()+1}-${args.checkInDate.getDate()}", 
-  numDays = ${args.numDays}, 
-  checkOutDate = "${args.checkOutDate.getFullYear()}-${args.checkOutDate.getMonth()+1}-${args.checkOutDate.getDate()}"
-  WHERE bed = "${bed}" AND room = "${room}";`;
-  console.log(sql)
-  DB.run(sql);
-}
+//         this.available = true;
+//         this.checkInDate = null;
+//         this.numDays = null;
+//         this.checkOutDate = null;
+//         return true;
+//       }
+//     }
+//   }
+// }
 
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
@@ -285,46 +101,9 @@ async function createWindow() {
       preload: path.join(__dirname, "preload.js") // use a preload script
     }
   });
-  DB.run(
-    `CREATE TABLE IF NOT EXISTS rooms (
-      roomID INTEGER PRIMARY KEY,
-      name TEXT,
-      numBeds INTEGER
-    )`
-  );
-  DB.run(
-    `CREATE TABLE IF NOT EXISTS beds (
-      bedID INTEGER PRIMARY KEY,
-      roomID INTEGER, 
-      room TEXT,
-      bed TEXT, 
-      available BOOLEAN, 
-      checkInDate TEXT, 
-      numDays INTEGER, 
-      checkOutDate TEXT, 
-      type TEXT,
-      guestID INTEGER
-    )`
-  );
-  DB.run(
-    `CREATE TABLE IF NOT EXISTS guests (
-      guestID INTEGER PRIMARY KEY, 
-      date INTEGER, fname TEXT, 
-      lname TEXT, 
-      numppl INTEGER, 
-      numDays INTEGER, 
-      country TEXT, 
-      passport TEXT, 
-      checkOutDate INTEGER, 
-      paid BOOLEAN, 
-      paymentMethod TEXT, 
-      amountPaid INTEGER, 
-      currency TEXT, 
-      notes TEXT
-    )`
-  );
-
-
+  createRoomsTable(DB);
+  createBedsTable(DB);
+  createGuestsTable(DB);
   // ONE TIME USE
   // fs.readFile("assets/hostel.json", (error, data) => {
   //   if (error) {
@@ -384,7 +163,6 @@ async function createWindow() {
     }
   });
   win.loadFile(path.join(__dirname, "index.html"));
-
 }
 
 app.on("ready", createWindow);
@@ -492,7 +270,7 @@ ipcMain.on("updateHostel", (event, args) => {
     //TODO: handle num beds clicked
     console.log(numBedsClicked, curData.numppl);
     for (let bed of bedsClicked) {
-      SQLCheckIn(curData, bed.room, bed.bed);
+      SQLCheckIn(DB, curData, bed.room, bed.bed);
     }
   
     curData = null;

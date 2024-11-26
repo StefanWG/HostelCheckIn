@@ -25,3 +25,9 @@ class Room {
         return room;
     }
 }
+
+try {
+    module.exports.Room = Room;
+} catch {
+    
+}
