@@ -1,11 +1,7 @@
-#main {
-    padding-top: 75px;
-}
-
 /* Outer container - Hostel container */
 .hostel {
-    background-color: #f5f5dc; /* Soft beige for a warm, welcoming tone */
-    border: 2px solid #8b5e3c; /* Brownish border for a rustic feel */
+    background-color: #f4f4f9; /* Light grayish background for a clean feel */
+    border: 2px solid #6c757d; /* Neutral blue-gray for a modern look */
     border-radius: 10px;
     padding: 20px;
     max-width: 900px;
@@ -18,8 +14,8 @@
 
 /* Room container styling */
 .room {
-    background-color: #f4e1d2; /* Light tan color for room sections */
-    border: 1px solid #8b4513; /* Dark brown border for room separation */
+    background-color: #e9ecef; /* Soft gray color for room sections */
+    border: 1px solid #6c757d; /* Blue-gray border for subtle contrast */
     border-radius: 8px;
     padding: 15px;
     display: flex;
@@ -32,6 +28,7 @@
 /* Hover effect for room */
 .room:hover {
     transform: scale(1.02); /* Slight zoom on hover */
+    background-color: #dee2e6; /* Slightly lighter gray on hover */
 }
 
 /* Styling for room name - h2 inside .room */
@@ -39,8 +36,8 @@
     margin: 0 0 15px 0;
     font-size: 1.6rem;
     font-weight: bold;
-    color: #8b4513; /* Dark brown */
-    border-bottom: 2px solid #8b4513;
+    color: #343a40; /* Darker gray for text contrast */
+    border-bottom: 2px solid #6c757d; /* Matches the modern color scheme */
     padding-bottom: 8px;
     text-align: center;
     font-family: 'Arial', sans-serif;
@@ -57,18 +54,18 @@
 
 /* Bed styling */
 .bed {
-    background-color: red; /* Lighter brown for beds */
+    background-color: #6c757d; /* Neutral blue-gray for unselected beds */
     width: 50px;
     height: 50px;
     padding: 10px;
     margin: 5px;
-    border: 1px solid #8b4513; /* Dark brown */
+    border: 1px solid #495057; /* Slightly darker gray for bed borders */
     border-radius: 5px;
     text-align: center;
     color: white;
     font-weight: bold;
     cursor: pointer;
-    /* display: flex; */
+    display: flex;
     align-items: center;
     justify-content: center;
     transition: all 0.3s ease-in-out;
@@ -76,7 +73,7 @@
 
 /* Available bed styling */
 .bed.available {
-    background-color: #32cd32; /* Bright green for availability */
+    background-color: #5a9bd4; /* Soft cyan for available beds */
     color: white;
 }
 
@@ -86,8 +83,9 @@
     transform: scale(1.1);
 }
 
+/* Selected bed styling */
 .bed.selected {
-    background-color: #13398b; /* Dark brown for selected bed */
+    background-color: #447799; /* Darker cyan for selected beds */
     color: white;
 }
 
@@ -96,5 +94,5 @@ body {
     font-family: 'Arial', sans-serif;
     margin: 0;
     padding: 0;
-    background-color: #f8f8f8; /* Light gray background for contrast */
+    background-color: #f8f9fa; /* Light grayish background for overall page */
 }

@@ -1,38 +1,49 @@
 /* Styling for the navigation container */
 #nav {
     position: fixed;
-    top: 0px;
-    height: 50px;
+    top: 0;
+    height: 12%;
     width: 100%;
     display: flex;
-    justify-content: center; /* Center align the button */
-    background-color: #f4e1d2; /* Light tan color for background */
-    padding: 10px 20px;
-    border-bottom: 2px solid #8b4513; /* Border for separation */
+    justify-content: space-evenly; /* Evenly space the buttons */
+    align-items: center; /* Vertically center the buttons */
+    background-color: #f4f4f9; /* Light grayish background for the navbar */
+    padding: 10px;
+    border-bottom: 2px solid #ccc; /* Subtle border for separation */
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    margin-bottom: 20px;
-    gap: 20px;
+    z-index: 1000; /* Ensure the navbar stays above other elements */
+    gap: 20px; /* Add gap between the buttons */
+    box-sizing: border-box; /* Ensure padding and gap don’t overflow the navbar */
 }
 
-/* Styling for the "Check In" button */
+/* Styling for the buttons in the navbar */
 #nav button {
-    padding: 12px 25px;
+    flex-grow: 1; /* Allow buttons to grow equally */
+    max-width: calc(100% / 4 - 20px); /* Adjust for the number of buttons (4) and gap */
+    padding: 12px 0; /* Vertical padding for button content */
     border: none;
-    border-radius: 5px;
-    background-color: lightblue; /* Green background */
-    color: white;
+    background-color: #6c757d; /* Base: Blue-gray color */
+    color: white; /* White text for readability */
     font-size: 1rem;
+    text-align: center; /* Center-align text */
     cursor: pointer;
+    border-radius: 10px; /* Add rounded corners to buttons */
     transition: background-color 0.3s ease, transform 0.3s ease;
 }
 
-/* Hover effect for the "Check In" button */
+/* Hover effect for the buttons */
 #nav button:hover {
-    background-color: lightskyblue; /* Darker green on hover */
-    transform: scale(1.05); /* Slightly enlarge the button */
+    background-color: #5a9bd4; /* Hover: Soft cyan for interactivity */
+    transform: scale(1.03); /* Slightly enlarge the button */
 }
 
 /* Active state styling for better feedback */
 #nav button:active {
+    background-color: #447799; /* Active: Darker cyan for pressed feedback */
     transform: scale(0.98); /* Slightly reduce size on click */
+}
+
+/* Main content styling to account for fixed navbar */
+#main {
+    padding-top: 10%; /* Leave space for the fixed navbar */
 }

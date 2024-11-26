@@ -10,11 +10,11 @@ const path = require("path");
 const fs = require("fs");
 const sqlite3 = require('sqlite3').verbose();
 
-const {SQLCheckIn, SQLInsert, createBedsTable, createRoomsTable, createGuestsTable} = require("./utils_sql.js")
-const {createExcel, getWorkSheet, addEntry} = require("./utils_excel.js");
-let {Room} = require("./src/room.js");
-let {Hostel} = require("./src/hostel.js");
-let {Bed} = require("./src/bed.js");
+const { BedCheckIn, SQLInsert, createBedsTable, createRoomsTable, createGuestsTable } = require("./utils_sql.js")
+const { createExcel, getWorkSheet, addEntry } = require("./utils_excel.js");
+let { Room } = require("./src/room.js");
+let { Hostel } = require("./src/hostel.js");
+let { Bed } = require("./src/bed.js");
 
 
 const EXCEL_FP = "hostel.xlsx";
@@ -83,7 +83,7 @@ const DB = new sqlite3.Database('hostel.db');
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
 let win;
-let hostel = new Hostel('Hostel', []);  
+let hostel = new Hostel('Hostel', []);
 let curBed;
 let curRoom;
 
@@ -125,7 +125,7 @@ async function createWindow() {
   //       DB.run(sql);
   //     }
 
-      
+
   //     let roomID = inserted[json[i].room];
   //     let sql = SQLInsert("beds", 
   //       ["roomID", "room", "bed", "available", "type"], 
@@ -149,9 +149,9 @@ async function createWindow() {
       let bed = json[i];
       let room = hostel.rooms.find(room => room.name === bed.room);
       if (room == undefined) {
-          room = new Room(hostel, bed.room);
-          hostel.rooms.push(room);
-          hostel.numRooms++;
+        room = new Room(hostel, bed.room);
+        hostel.rooms.push(room);
+        hostel.numRooms++;
       }
       let newBed = new Bed(hostel, room, 'Single', bed.bed);
       newBed.available = bed.available;
@@ -173,50 +173,43 @@ let numBedsClicked = 0;
 
 ipcMain.on("toMain", (event, args) => {
   if (args === "guests") {
-    let sheet = getWorkSheet(EXCEL);
     let data = [];
-    sheet.eachRow((row, rowNumber) => {
-      if (rowNumber !== 1) {
-        let obj = {
-          name: row.values[2],
-          numppl: row.values[4],
-          numnight: row.values[5],
-          date: row.values[1]
-        }
-        data.push(obj);
+    DB.all(`SELECT * FROM guests;`, (err, rows) => {
+      if (err) { console.error(err); } else {
+        let data = [];
+        for (let row of rows) { data.push(row); }
+        win.webContents.send("fromMain", { "data": data });
       }
     });
-    win.webContents.send("fromMain", {"data": data});
     return;
   } else if (args === "checkoutlist") {
     DB.all(`SELECT * FROM beds;`, (err, rows) => {
       if (err) { console.error(err); } else {
         let data = [];
         for (let row of rows) { data.push(row); }
-        win.webContents.send("fromMain", {"data":data});
+        win.webContents.send("fromMain", { "data": data });
       }
     });
-
+  } else {
+    DB.all(`SELECT * FROM beds`, (err, rows) => {
+      if (err) { console.error(err); } else {
+        let data = [];
+        for (let row of rows) { data.push(row); }
+        if (curData != null) {
+          win.webContents.send("fromMain", { "data": data, "numppl": curData.numppl });
+        } else {
+          win.webContents.send("fromMain", { "data": data });
+        }
+      }
+    });
   }
-
-  DB.all(`SELECT * FROM beds`, (err, rows) => {
-    if (err) { console.error(err); } else {
-      let data = [];
-      for (let row of rows) { data.push(row); }
-      if (curData != null) {
-        win.webContents.send("fromMain", {"data":data, "numppl":curData.numppl});
-      } else {
-        win.webContents.send("fromMain", {"data":data});
-      }    
-    }
-  });
 
 });
 
 ipcMain.on("bedClicked", (event, args) => {
   let curUrl = win.webContents.getURL().split("/")[win.webContents.getURL().split("/").length - 1];
   if (curUrl === "roompicker.html") {
-    let alreadyClicked  = false;
+    let alreadyClicked = false;
     for (let bed of bedsClicked) {
       if (bed.bed === args.bed && bed.room === args.room) {
         alreadyClicked = true;
@@ -239,7 +232,7 @@ ipcMain.on("bedClicked", (event, args) => {
 
 ipcMain.on("reload", (event, args) => {
   for (let room of hostel.rooms) {
-    for (let bed of room.beds) { bed.checkOut();}
+    for (let bed of room.beds) { bed.checkOut(); }
   }
 
   fs.writeFile("assets/hostel.json", hostel.getJsonString(), (error) => {
@@ -255,42 +248,42 @@ ipcMain.on("reload", (event, args) => {
 });
 
 ipcMain.on("updateHostel", (event, args) => {
-    // let numBedsClicked = 0;
-    // console.log(hostel);
-    // for (let bed of bedsClicked) {
-    //   let bedObj = hostel.getBed(bed.room, bed.bed);
-    //   let type = bedObj.type;
-    //   if (type === "Single") {
-    //     numBedsClicked ++;
-    //   } else {
-    //     numBedsClicked += 2;
-    //   } 
-    // }
-    //TODO: handle num beds clicked
-    console.log(numBedsClicked, curData.numppl);
-    for (let bed of bedsClicked) {
-      SQLCheckIn(DB, curData, bed.room, bed.bed);
-    }
-  
-    curData = null;
-    win.loadFile(path.join(__dirname, `src/html/index.html`));
-    // let numppl = parseInt(curData.numppl);
+  // let numBedsClicked = 0;
+  // console.log(hostel);
+  // for (let bed of bedsClicked) {
+  //   let bedObj = hostel.getBed(bed.room, bed.bed);
+  //   let type = bedObj.type;
+  //   if (type === "Single") {
+  //     numBedsClicked ++;
+  //   } else {
+  //     numBedsClicked += 2;
+  //   } 
+  // }
+  //TODO: handle num beds clicked
+  console.log(numBedsClicked, curData.numppl);
+  for (let bed of bedsClicked) {
+    BedCheckIn(DB, curData, bed.room, bed.bed);
+  }
 
-    // if (numBedsClicked < numppl) { 
-    //   //TODO: Handle no enough beds clicked
-    //   // win.api.send("notEnoughBedsClicked", {});
-    // } else if (numBedsClicked == numppl) {
-    //   console.log("HERE");
-    //   // Update beds with check in, save file and load index page.
-    //   for (let bed of bedsClicked) {
-    //     SQLCheckIn(curData);
-    //   }
-    
-    //   curData = null;
-    //   win.loadFile(path.join(__dirname, `index.html`));
-    // } else {
-      
-    // }
+  curData = null;
+  win.loadFile(path.join(__dirname, `src/html/index.html`));
+  // let numppl = parseInt(curData.numppl);
+
+  // if (numBedsClicked < numppl) { 
+  //   //TODO: Handle no enough beds clicked
+  //   // win.api.send("notEnoughBedsClicked", {});
+  // } else if (numBedsClicked == numppl) {
+  //   console.log("HERE");
+  //   // Update beds with check in, save file and load index page.
+  //   for (let bed of bedsClicked) {
+  //     SQLCheckIn(curData);
+  //   }
+
+  //   curData = null;
+  //   win.loadFile(path.join(__dirname, `index.html`));
+  // } else {
+
+  // }
 });
 
 ipcMain.on("load", (event, args) => {

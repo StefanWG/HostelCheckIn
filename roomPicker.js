@@ -21,6 +21,7 @@ window.api.receive("fromMain", (args) => {
         room.addBed(newBed);
     }
     hostel.rooms.sort((a, b) => a.name - b.name);
+
     for (let room of hostel.rooms) {
         room.beds.sort((a, b) => a.number - b.number);
     }

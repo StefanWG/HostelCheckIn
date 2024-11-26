@@ -68,8 +68,3 @@ window.api.receive("fromMain", (args) => {
     // Initial render
     renderTable(tableData);
 });
-
-let homeButton = document.getElementById('home');
-homeButton.addEventListener('click', () => {
-    window.api.send("load", {"page": "index"});
-});

@@ -3,7 +3,7 @@ function SQLInsert(table, columns, values) {
     return sql;
 }
   
-function SQLCheckIn(db, args, room, bed) {
+function BedCheckIn(db, args, room, bed) {
     let sql = 
     `UPDATE beds 
     SET available = 0,
@@ -12,6 +12,33 @@ function SQLCheckIn(db, args, room, bed) {
     checkOutDate = "${args.checkOutDate.getFullYear()}-${args.checkOutDate.getMonth()+1}-${args.checkOutDate.getDate()}"
     WHERE bed = "${bed}" AND room = "${room}";`;
     console.log(sql)
+    db.run(sql);
+}
+
+function BedCheckOut(db, room, bed) {
+    let sql = 
+    `UPDATE beds 
+    SET available = 1,
+    checkInDate = NULL, 
+    numDays = NULL, 
+    checkOutDate = NULL
+    WHERE bed = "${bed}" AND room = "${room}";`;
+    console.log(sql)
+    db.run(sql);
+}
+
+function GuestsCheckIn(db, args) {
+    let sql = SQLInsert("guests",
+        ["date", "fname", "lname", "numppl", "numDays", 
+            "country", "passport", "checkOutDate", 
+            "paid", "paymentMethod", "amountPaid", "currency", "notes"],
+        [args.date, `"${args.fname}"`, `"${args.lname}"`, 
+            args.numppl, args.numDays, `"${args.country}"`, 
+            `"${args.passport}"`, args.checkOutDate, args.paid, 
+            `"${args.paymentMethod}"`, args.amountPaid, `"${args.currency}"`, 
+            `"${args.notes}"`]
+    );
+
     db.run(sql);
 }
 
@@ -63,7 +90,8 @@ function createGuestsTable(db) {
 }
 module.exports = {
     SQLInsert, 
-    SQLCheckIn,
+    BedCheckIn,
+    GuestsCheckIn,
     createRoomsTable,
     createBedsTable,
     createGuestsTable
