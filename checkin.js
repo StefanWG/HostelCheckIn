@@ -11,7 +11,7 @@ let cancelButton = document.getElementById('cancel');
 let pickroomsButton = document.getElementById('pickrooms');
 
 cancelButton.onclick =  () => {
-    window.api.send("loadIndex", {});
+    window.api.send("load", {"page":"index"});
 };
 
 pickroomsButton.onclick = () => { 
@@ -27,7 +27,8 @@ pickroomsButton.onclick = () => {
     let checkOutDate = new Date(dateInput.value);
     checkOutDate.setDate(checkInDate.getDate() + numDays);
 
-    window.api.send("goToRoomPicker", {
+    window.api.send("load", {
+        "page": "roompicker",
         "numDays": numDays, 
         "numppl": document.getElementById('numppl').value,
         "checkInDate": checkInDate, 

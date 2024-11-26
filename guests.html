@@ -11,3 +11,42 @@
     
 
 -->
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <title>My Web Page</title>
+    <script src="src/bed.js"></script>
+    <script src="src/room.js"></script>
+    <script src="src/hostel.js"></script>
+    <script src="guests.js" defer type="module"></script>
+    <link rel="stylesheet" href="styles-checkout.css">
+</head>
+<body>
+    <div id="nav">
+        <button id="home">Home</button>
+        <button id="guests">Guests</button>
+        <button id="checkout">Check Out List</button>
+        <button id="update">Update</button>
+    </div>
+    <div id="main">
+    <div id="controls">
+        <label for="filter-date">Filter by Date:</label>
+        <input type="date" id="filter-date">
+    </div>
+    <table id="dynamic-table">
+        <thead>
+            <tr>
+                <th data-sort="name">Name</th>
+                <th data-sort="numppl">People</th>
+                <th data-sort="numnight">Nights</th>
+            </tr>
+        </thead>
+        <tbody>
+            <!-- Rows will be dynamically generated -->
+        </tbody>
+    </table>
+    </div>
+</body>
+</html>

@@ -25,7 +25,7 @@ window.api.send("toMain", "some data");
 
 let checkInBUtton = document.getElementById('checkin');
 checkInBUtton.addEventListener('click', () => {
-    window.api.send("loadCheckin", {});
+    window.api.send("load", {"page": "checkin"});
 });
 
 let updateButton = document.getElementById('update');
@@ -35,7 +35,12 @@ updateButton.addEventListener('click', () => {
 
 let checkoutButtom = document.getElementById('checkout');
 checkoutButtom.addEventListener('click', () => {
-    window.api.send("loadCheckout", {});
+    window.api.send("load", {"page": "checkout"});
+});
+
+let guestsButton = document.getElementById('guests');
+guestsButton.addEventListener('click', () => {
+    window.api.send("load", {"page": "guests"});
 });
 
 //TODO: Different color if bed is occupied but unpaid

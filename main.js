@@ -1,4 +1,5 @@
 // TODO: Language thing (esp, eng)
+// TODO: USE A DB INSTEAD OF JSON AND SPREADSHEET - STILL WRITE TO SPREADSHEET
 
 const {
   app,
@@ -8,9 +9,14 @@ const {
 const path = require("path");
 const fs = require("fs");
 const ExcelJS = require('exceljs');
+const sqlite3 = require('sqlite3').verbose();
+
 
 const EXCEL_FP = "hostel.xlsx";
-const EXCEL = createExcel(false);
+const EXCEL = createExcel(EXCEL_FP, false);
+const CHECKOUTLIST_FP = "checkoutlist.xlsx";
+const EXCEL_CHECKOUTLIST = createExcel(CHECKOUTLIST_FP, false);
+const DB = new sqlite3.Database('hostel.db');
 
 class Hostel {
   constructor(name, rooms) {
@@ -145,25 +151,30 @@ class Bed {
   }
 }
 
-function createExcel(override) {
+function createExcel(fp,override) {
   if (override) {
     const workbook = new ExcelJS.Workbook();
-    workbook.xlsx.writeFile(`assets/${override}`);
+    workbook.xlsx.writeFile(`assets/${fp}`);
     return workbook;
   } else {
-    if (fs.existsSync(`assets/${EXCEL_FP}`)) {
+    if (fs.existsSync(`assets/${fp}`)) {
       const workbook = new ExcelJS.Workbook();
-      workbook.xlsx.readFile(`assets/${EXCEL_FP}`);
+      workbook.xlsx.readFile(`assets/${fp}`);
       return workbook;
     } else {
       const workbook = new ExcelJS.Workbook();
-      workbook.xlsx.writeFile(`assets/${EXCEL_FP}`);
+      workbook.xlsx.writeFile(`assets/${fp}`);
       return workbook;
     }
   }
 }
 
-function getWorkSheet(wb, month) {
+
+function getWorkSheet(wb) {
+
+  let date = new Date();
+  let month = date.toLocaleString('default', { month: 'long' });
+
   for (let sheet of wb.worksheets) {
     if (sheet.name === month) {
       sheet.columns = sheet.columns = [
@@ -174,6 +185,15 @@ function getWorkSheet(wb, month) {
         {header: "Nights", key: "numDays", width: 10},
         {header: "Country", key: "country", width: 15},
         {header: "Passport #", key:"passport", width: 15},
+        {header: "Check Out Date", key: "checkOutDate", width: 10},
+        {header: "Paid", key: "paid", width: 10},
+        {header: "Payment Method", key: "paymentMethod", width: 15},
+        {header: "Amount Paid", key: "amountPaid", width: 10},
+        {header: "Currency", key: "currency", width: 10},
+        {header: "Rooms", key: "room", width: 10},
+        {header: "Beds", key: "bed", width: 10},
+        {header: "Person", key: "person", width: 10},
+        {header: "Notes", key: "notes", width: 10}
       ]
       return sheet;
     }
@@ -185,12 +205,21 @@ function addMonth(workbook, month,) {
   let sheet = workbook.addWorksheet(month);
   sheet.columns = [
     {header: "Date", key: "checkInDate", width: 10},
-    {header: "First Name", key: "fname", width: 32},
-    {header: "Last Name", key: "lname", width: 32},
-    {header: "People", key: "numppl", width: 10},
-    {header: "Nights", key: "numDays", width: 10},
-    {header: "Country", key: "country", width: 15},
-    {header: "Passport #", key:"passport", width: 15},
+      {header: "First Name", key: "fname", width: 32},
+      {header: "Last Name", key: "lname", width: 32},
+      {header: "People", key: "numppl", width: 10},
+      {header: "Nights", key: "numDays", width: 10},
+      {header: "Country", key: "country", width: 15},
+      {header: "Passport #", key:"passport", width: 15},
+      {header: "Check Out Date", key: "checkOutDate", width: 10},
+      {header: "Paid", key: "paid", width: 10},
+      {header: "Payment Method", key: "paymentMethod", width: 15},
+      {header: "Amount Paid", key: "amountPaid", width: 10},
+      {header: "Currency", key: "currency", width: 10},
+      {header: "Rooms", key: "room", width: 10},
+      {header: "Beds", key: "bed", width: 10},
+      {header: "Person", key: "person", width: 10},
+      {header: "Notes", key: "notes", width: 10}
   ]
 
   workbook.xlsx.writeFile(`assets/${EXCEL_FP}`);
@@ -199,9 +228,7 @@ function addMonth(workbook, month,) {
 
 function addEntry(wb, args) {
   console.log(args);
-  let date = new Date();
-  let month = date.toLocaleString('default', { month: 'long' });
-  let sheet = getWorkSheet(wb, month);
+  let sheet = getWorkSheet(wb); 
 
   let row = {};
   for (let key in args) {
@@ -216,6 +243,11 @@ function addEntry(wb, args) {
 function checkHostelMatchesSpreadsheet(hostel, sheet) {
   //TODO: call this periodically to make sure everything is synced.
   return;
+}
+
+function SQLInsert(table, columns, values) {
+  let sql = `INSERT INTO ${table} (${columns.join(",")}) VALUES (${values.join(",")})`;
+  return sql;
 }
 
 // Keep a global reference of the window object, if you don't, the window will
@@ -238,6 +270,48 @@ async function createWindow() {
       preload: path.join(__dirname, "preload.js") // use a preload script
     }
   });
+
+  DB.run(
+    `CREATE TABLE IF NOT EXISTS rooms (
+      roomID INTEGER PRIMARY KEY,
+      name TEXT,
+      numBeds INTEGER
+    )`
+  );
+  DB.run(
+    `CREATE TABLE IF NOT EXISTS beds (
+      bedID INTEGER PRIMARY KEY,
+      roomID INTEGER, 
+      bed TEXT, 
+      available BOOLEAN, 
+      checkInDate TEXT, 
+      numDays INTEGER, 
+      checkOutDate INTEGER, 
+      type TEXT,
+      guestID INTEGER
+    )`
+  );
+  DB.run(
+    `CREATE TABLE IF NOT EXISTS guests (
+      guestID INTEGER PRIMARY KEY, 
+      date INTEGER, fname TEXT, 
+      lname TEXT, 
+      numppl INTEGER, 
+      numDays INTEGER, 
+      country TEXT, 
+      passport TEXT, 
+      checkOutDate INTEGER, 
+      paid BOOLEAN, 
+      paymentMethod TEXT, 
+      amountPaid INTEGER, 
+      currency TEXT, 
+      notes TEXT
+    )`
+  );
+
+  
+
+
 
   // Load app
   fs.readFile("assets/hostel.json", (error, data) => {
@@ -277,6 +351,32 @@ let numBedsClicked = 0;
 
 
 ipcMain.on("toMain", (event, args) => {
+  if (args === "guests") {
+    let sheet = getWorkSheet(EXCEL);
+    let data = [];
+    sheet.eachRow((row, rowNumber) => {
+      if (rowNumber !== 1) {
+        let obj = {
+          name: row.values[2],
+          numppl: row.values[4],
+          numnight: row.values[5],
+          date: row.values[1]
+        }
+        data.push(obj);
+      }
+    });
+    win.webContents.send("fromMain", {"data": data});
+    return;
+  } else if (args === "checkoutlist") {
+    for (let room of hostel.rooms) {
+      for (let bed of room.beds) {
+        if (!bed.available) {
+          // TODO: RETURN ALL BEDS AND THEN IN CHECKOUTLIST.js filter them
+        }
+      }
+    }
+
+  }
   fs.readFile("assets/hostel.json", (error, data) => {
     // Do something with file contents
     let json = JSON.parse(data);
@@ -289,12 +389,6 @@ ipcMain.on("toMain", (event, args) => {
   });
 });
 
-ipcMain.on("loadCheckin", (event, args) => {
-
-  win.loadFile(path.join(__dirname, `checkin.html`));
-  win.webContents.send("fromMain", args);
-
-})
 ipcMain.on("bedClicked", (event, args) => {
   let curUrl = win.webContents.getURL().split("/")[win.webContents.getURL().split("/").length - 1];
   if (curUrl === "roompicker.html") {
@@ -346,16 +440,6 @@ ipcMain.on("reload", (event, args) => {
   win.webContents.reload();
 });
 
-ipcMain.on("loadIndex", (event, args) => {  
-  win.loadFile(path.join(__dirname, `index.html`));
-});
-
-ipcMain.on("goToRoomPicker", (event, args) => {
-  bedsClicked = [];
-  curData = args;
-  win.loadFile(path.join(__dirname, `roompicker.html`));
-});
-
 ipcMain.on("updateHostel", (event, args) => {
     let numBedsClicked = 0;
     for (let bed of bedsClicked) {
@@ -388,20 +472,33 @@ ipcMain.on("updateHostel", (event, args) => {
           return;
         } else {
           console.log("success");
-          curData = null;
         }
       });
 
       //Write to excel
       addEntry(EXCEL, curData);
-
+      curData = null;
       win.loadFile(path.join(__dirname, `index.html`));
     } else {
       
     }
 });
 
-ipcMain.on("loadCheckout", (event, args) => {
-  win.loadFile(path.join(__dirname, `checkoutlist.html`));
-
+ipcMain.on("load", (event, args) => {
+  if (args["page"] === "index") {
+    win.loadFile(path.join(__dirname, `index.html`));
+  } else if (args["page"] === "checkout") {
+    win.loadFile(path.join(__dirname, `checkoutlist.html`));
+  } else if (args["page"] === "guests") {
+    win.loadFile(path.join(__dirname, `guests.html`));
+  } else if (args["page"] === "checkin") {
+    win.loadFile(path.join(__dirname, `checkin.html`));
+    delete args["page"];
+    win.webContents.send("fromMain", args);
+  } else if (args["page"] === "roompicker") {
+    bedsClicked = [];
+    delete args["page"];
+    curData = args;
+    win.loadFile(path.join(__dirname, `roompicker.html`));
+  }
 });
