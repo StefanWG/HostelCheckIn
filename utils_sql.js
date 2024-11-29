@@ -49,7 +49,7 @@ function GuestsCheckIn(db, args) {
 
 function createRoomsTable(db) {
     db.run(
-        `CREATE TABLE IF NOT EXISTS rooms (
+        `CREATE TABLE rooms (
             roomID INTEGER PRIMARY KEY,
             name TEXT,
             numBeds INTEGER
@@ -59,7 +59,7 @@ function createRoomsTable(db) {
 
 function createBedsTable(db) {
     db.run(
-        `CREATE TABLE IF NOT EXISTS beds (
+        `CREATE TABLE beds (
             bedID INTEGER PRIMARY KEY,
             roomID INTEGER, 
             room TEXT,
@@ -76,7 +76,7 @@ function createBedsTable(db) {
 
 function createGuestsTable(db) {
     db.run(
-        `CREATE TABLE IF NOT EXISTS guests (
+        `CREATE TABLE guests (
             guestID INTEGER PRIMARY KEY, 
             date INTEGER, fname TEXT, 
             lname TEXT, 

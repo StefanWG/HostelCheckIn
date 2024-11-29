@@ -17,13 +17,18 @@
     <form>
         <input type="date" id="checkindate">
         <!-- TODO: Number of days and people inline with each other -->
-        <input type="number" id="numdays" min="1" max="14" placeholder="Number of Days">
-        <input type="number" id="numppl" min="1" max="40" placeholder="Number of People">
+        <div class="two-container">
+            <input type="number" id="numdays" min="1" max="14" placeholder="Number of Days">
+            <input type="number" id="numppl" min="1" max="40" placeholder="Number of People">
+        </div>
         <input type="text" id="fname" placeholder="First Name">
         <input type="text" id="lname" placeholder="Last Name">
-        <input type="text" id="country" placeholder="Country">
-        <input type="text" id="passport" placeholder="Passport Number">
-        <!-- TODO: person making payment -->
+        <div class="two-container">
+            <input type="text" id="country" placeholder="Country">
+            <input type="text" id="passport" placeholder="Passport Number">
+        </div>
+        <input type="number" id="Total" placeholder="Total">
+        <input type="person" id="person" placeholder="Volunteer">
         <div id="payment">
             <div id="tab-container">
                 <input type="radio" name="payment" value="cash" id="cash" checked>

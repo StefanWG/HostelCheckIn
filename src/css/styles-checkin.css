@@ -34,6 +34,48 @@ form {
     margin-bottom: 20px;
 }
 
+/* Styling for the container */
+.two-container {
+    display: flex;
+    justify-content: space-between; /* Add space between inputs */
+    gap: 10px; /* Space between inputs */
+    width: 100%; /* Ensure it takes the full width of the parent */
+    box-sizing: border-box; /* Include padding and borders in width calculation */
+}
+
+/* Styling for the input elements */
+.two-container input[type="number"],
+.two-container input[type="text"] {
+    flex: 1; /* Make inputs take up equal space */
+    max-width: 50%; /* Limit each input to 50% of the container */
+    padding: 10px;
+    font-size: 1rem;
+    border: 1px solid #ccc; /* Light border for consistency */
+    border-radius: 5px; /* Rounded corners for a modern look */
+    box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.1); /* Subtle inset shadow */
+    transition: border-color 0.3s ease;
+}
+#button-container {
+    max-width: 350px;
+    display: flex;
+    justify-content: space-between; /* Add space between buttons */
+    gap: 10px; /* Space between buttons */
+    width: 100%; /* Ensure it takes the full width of the parent */
+    box-sizing: border-box; /* Include padding and borders in width calculation */
+}
+
+#pickrooms, #cancel {
+    width: 100%;
+    padding: 10px 20px;
+    margin: 10px 5px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 1rem;
+    transition: background-color 0.3s ease;
+}
+
+
 /* Form inputs */
 input[type="date"],
 input[type="number"],

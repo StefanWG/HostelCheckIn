@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Create Hostel</title>
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background-color: #f9f9f9;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: #fff;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+        }
+        h1 {
+            text-align: center;
+            color: #333;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        input, button {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+        button {
+            background-color: #28a745;
+            color: white;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        button:hover {
+            background-color: #218838;
+        }
+        .room-summary {
+            margin-top: 20px;
+        }
+        .room-summary ul {
+            list-style-type: none;
+            padding: 0;
+        }
+        .room-summary li {
+            margin-bottom: 10px;
+            background: #f1f1f1;
+            padding: 10px;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Create Hostel</h1>
+
+        <!-- Form to set hostel name -->
+        <div id="hostel-name-container" class="form-group">
+            <label for="hostel-name">Hostel Name</label>
+            <input type="text" id="hostel-name" placeholder="Enter hostel name">
+        </div>
+
+        <!-- Form to add rooms and beds -->
+        <div id="form-container">
+            <div class="form-group">
+                <label for="room-name">Room Name</label>
+                <input type="text" id="room-name" placeholder="Enter room name">
+            </div>
+            <div class="form-group">
+                <label for="num-beds">Number of Beds</label>
+                <input type="number" id="num-beds" min="1" placeholder="Enter number of beds">
+            </div>
+            <button id="add-room">Add Room</button>
+        </div>
+
+        <!-- Summary of added rooms -->
+        <div class="room-summary" id="room-summary">
+            <h2>Hostel Structure</h2>
+            <ul id="room-list">
+                <!-- Rooms will be added dynamically here -->
+            </ul>
+        </div>
+
+        <!-- Finalize button -->
+        <button id="finalize-hostel">Finalize Hostel</button>
+    </div>
+
+    <script>
+        const roomList = document.getElementById('room-list');
+        const roomNameInput = document.getElementById('room-name');
+        const numBedsInput = document.getElementById('num-beds');
+        const addRoomButton = document.getElementById('add-room');
+        const finalizeButton = document.getElementById('finalize-hostel');
+        const hostelNameInput = document.getElementById('hostel-name');
+
+        // Array to hold the hostel structure
+        const hostel = {
+            name: '',
+            rooms: []
+        };
+
+        // Add room and its beds
+        addRoomButton.addEventListener('click', () => {
+            const roomName = roomNameInput.value.trim();
+            const numBeds = parseInt(numBedsInput.value, 10);
+
+            if (roomName && numBeds > 0) {
+                // Add room to the hostel array
+                hostel.rooms.push({ roomName, beds: numBeds });
+
+                // Add to the summary list
+                const listItem = document.createElement('li');
+                listItem.textContent = `${roomName} - ${numBeds} Bed(s)`;
+                roomList.appendChild(listItem);
+
+                // Clear inputs
+                roomNameInput.value = '';
+                numBedsInput.value = '';
+            } else {
+                alert('Please enter a valid room name and number of beds.');
+            }
+        });
+
+        // Finalize the hostel
+        finalizeButton.addEventListener('click', () => {
+            hostel.name = hostelNameInput.value.trim();
+
+            if (!hostel.name) {
+                alert('Please enter a hostel name.');
+                return;
+            }
+
+            console.log('Finalized Hostel Structure:', hostel);
+
+            // Send the hostel object to the server
+            window.api.send("createDB", hostel);
+        });
+    </script>
+</body>
+</html>

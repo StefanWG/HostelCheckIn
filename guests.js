@@ -81,3 +81,8 @@ window.api.receive("fromMain", (args) => {
     // Initial render
     renderTable(tableData);
 });
+
+let saveButton = document.getElementById('save');
+saveButton.addEventListener('click', () => {
+    window.api.send("saveGuests", {});
+});

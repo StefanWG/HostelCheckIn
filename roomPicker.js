@@ -36,8 +36,9 @@ window.api.receive("bedClickedFromMain", (args) => {
 
     let room = hostel.rooms.find(room => room.name === args.room);
     let bedObj = room.beds.find(b => b.number === args.bed);
-    bedObj.selected = !bedObj.selected;
-
+    if (bedObj.available) {
+        bedObj.selected = !bedObj.selected;
+    }
     hostel.displayRooms(main);
 
 })
@@ -51,3 +52,8 @@ submitButton.addEventListener('click', () => {
     // TODO: pass to update hostel
 });
 
+
+let goBackButton = document.getElementById('goBack');
+goBackButton.addEventListener('click', () => {
+    window.api.send("load", {"page": "checkin"});
+});

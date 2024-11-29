@@ -54,39 +54,54 @@
 
 /* Bed styling */
 .bed {
-    background-color: #6c757d; /* Neutral blue-gray for unselected beds */
-    width: 50px;
-    height: 50px;
-    padding: 10px;
-    margin: 5px;
-    border: 1px solid #495057; /* Slightly darker gray for bed borders */
-    border-radius: 5px;
-    text-align: center;
-    color: white;
-    font-weight: bold;
-    cursor: pointer;
+    background-color: #f5f5f5; /* Light color for the mattress */
+    width: 60px; /* Adjust width to look proportionate */
+    height: 90px; /* Adjust height to mimic a bed */
+    border: 2px solid #8b4513; /* Dark brown border for frame */
+    border-radius: 8px; /* Rounded corners for a smoother look */
     display: flex;
+    flex-direction: column; /* Stack pillow and body elements */
     align-items: center;
-    justify-content: center;
-    transition: all 0.3s ease-in-out;
+    justify-content: flex-start; /* Position pillow at the top */
+    padding: 5px;
+    margin: 10px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Shadow for depth */
+    position: relative; /* Positioning for internal elements */
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    background-color: #ffcccb; /* Light red for unavailable beds */
+    border-color: #b22222; /* Dark red border for emphasis */
 }
 
 /* Available bed styling */
 .bed.available {
-    background-color: #5a9bd4; /* Soft cyan for available beds */
-    color: white;
+    background-color: #90ee90; /* Light green for available beds */
+    border-color: #228b22; /* Dark green border for emphasis */
 }
 
-/* Bed hover effect */
+/* Hover effect */
 .bed:hover {
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.15);
-    transform: scale(1.1);
+    transform: translateY(-5px); /* Slight lift on hover */
+    box-shadow: 0 6px 10px rgba(0, 0, 0, 0.2); /* Deeper shadow on hover */
 }
+
+/* Pillow styling */
+.bed::before {
+    content: "";
+    width: 80%; /* Width of the pillow relative to the bed */
+    height: 15px; /* Height of the pillow */
+    background-color: #fff; /* White pillow color */
+    border: 1px solid #ccc; /* Light gray border for pillow */
+    border-radius: 5px; /* Rounded edges for pillow */
+    margin-bottom: 5px; /* Spacing between pillow and mattress */
+    position: relative;
+    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1); /* Inner shadow for depth */
+}
+
 
 /* Selected bed styling */
-.bed.selected {
-    background-color: #447799; /* Darker cyan for selected beds */
-    color: white;
+.bed.selected { 
+    background-color: #058316; 
+    border-color:rgb(47, 255, 47)e;
 }
 
 /* General text styling for consistency */

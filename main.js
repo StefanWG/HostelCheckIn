@@ -9,9 +9,11 @@ const {
 const path = require("path");
 const fs = require("fs");
 const sqlite3 = require('sqlite3').verbose();
+const { dialog } = require('electron');
+
 
 const { BedCheckIn, BedCheckOut, SQLInsert, createBedsTable, createRoomsTable, createGuestsTable, GuestsCheckIn } = require("./utils_sql.js")
-const { createExcel, getWorkSheet, addEntry } = require("./utils_excel.js");
+const { createExcel, getWorkSheet, addEntry, writeExcel } = require("./utils_excel.js");
 let { Room } = require("./src/room.js");
 let { Hostel } = require("./src/hostel.js");
 let { Bed } = require("./src/bed.js");
@@ -23,7 +25,7 @@ const CHECKOUTLIST_FP = "checkoutlist.xlsx";
 const EXCEL_CHECKOUTLIST = createExcel(CHECKOUTLIST_FP, false);
 const DB = new sqlite3.Database('hostel.db');
 
-//   constructor(hostel, room, type, number) {
+
 //       this.hostel = hostel;
 //       this.room = room;
 //       this.type = type;
@@ -100,97 +102,41 @@ async function createWindow() {
       preload: path.join(__dirname, "preload.js") // use a preload script
     }
   });
-  createRoomsTable(DB);
-  createBedsTable(DB);
-  createGuestsTable(DB);
-  // ONE TIME USE
-  // fs.readFile("assets/hostel.json", (error, data) => {
-  //   if (error) {
-  //     console.error("error: " + error);
-  //     return;
-  //   } else {
-  //     console.log("success");
-  //   }
-  //   let json = JSON.parse(data);
-  //   let inserted = [];
-  //   let curId = 1;
-  //   for (let i = 0; i < json.length; i++) {
-  //     if (!inserted.includes(json[i].room)) {
-  //       let sql = SQLInsert("rooms", ["name", "numBeds"], [`"${json[i].room}"`, 1]);
-  //       DB.run(sql);
-  //       inserted[json[i].room] = curId;
-  //       curId++;
-  //     } else {
-  //       let sql = "UPDATE rooms SET numBeds = numBeds + 1 WHERE name = " + `"${json[i].room}"`;
-  //       DB.run(sql);
+  // createRoomsTable(DB);
+  // createBedsTable(DB);
+  // createGuestsTable(DB);
+  // let data = [];
+  // DB.all(`SELECT * FROM beds;`, (err, rows) => {
+  //   if (err) { console.error(err); } else {
+  //     for (let row of rows) { data.push(row); }
+  //     for (let i = 0; i < data.length; i++) {
+  //       let bed = data[i];
+  //       let room = hostel.rooms.find(room => room.name === bed.room);
+  //       if (room == undefined) {
+  //           room = new Room(hostel, bed.room);
+  //           hostel.rooms.push(room);
+  //           hostel.numRooms++;
+  //       }
+  //       let newBed = new Bed(hostel, room, 'Single', bed.bed);
+  //       newBed.available = bed.available;
+  //       if (bed.checkInDate != null) {
+  //           newBed.checkInDate = new Date(bed.checkInDate);
+  //       }
+  //       newBed.numDays = bed.numDays;
+  //       if (bed.checkOutDate != null) {
+  //           newBed.checkOutDate = new Date(bed.checkOutDate);
+  //       }
+  //       room.addBed(newBed);
   //     }
-
-
-  //     let roomID = inserted[json[i].room];
-  //     let sql = SQLInsert("beds", 
-  //       ["roomID", "room", "bed", "available", "type"], 
-  //       [roomID, `"${json[i].room}"`, `"${json[i].bed}"`, "TRUE", `"Single"`]
-  //     );
-  //     DB.run(sql);
+  //     hostel.rooms.sort((a, b) => a.name - b.name);
+  //     for (let room of hostel.rooms) {
+  //         room.beds.sort((a, b) => a.number - b.number);
+  //     }
   //   }
   // });
-
-
-  // Load app
-  // fs.readFile("assets/hostel.json", (error, data) => {
-  //   if (error) {
-  //     console.error("error: " + error);
-  //     return;
-  //   } else {
-  //     console.log("success");
-  //   }
-  //   let json = JSON.parse(data);
-  //   for (let i = 0; i < json.length; i++) {
-  //     let bed = json[i];
-  //     let room = hostel.rooms.find(room => room.name === bed.room);
-  //     if (room == undefined) {
-  //       room = new Room(hostel, bed.room);
-  //       hostel.rooms.push(room);
-  //       hostel.numRooms++;
-  //     }
-  //     let newBed = new Bed(hostel, room, 'Single', bed.bed);
-  //     newBed.available = bed.available;
-  //     newBed.checkInDate = new Date(bed.checkInDate);
-  //     newBed.numDays = bed.numDays;
-  //     newBed.checkOutDate = new Date(bed.checkOutDate);
-  //     room.addBed(newBed);
-  //   }
-  // });
-  let data = [];
-  DB.all(`SELECT * FROM beds;`, (err, rows) => {
-    if (err) { console.error(err); } else {
-      for (let row of rows) { data.push(row); }
-      for (let i = 0; i < data.length; i++) {
-        let bed = data[i];
-        let room = hostel.rooms.find(room => room.name === bed.room);
-        if (room == undefined) {
-            room = new Room(hostel, bed.room);
-            hostel.rooms.push(room);
-            hostel.numRooms++;
-        }
-        let newBed = new Bed(hostel, room, 'Single', bed.bed);
-        newBed.available = bed.available;
-        if (bed.checkInDate != null) {
-            newBed.checkInDate = new Date(bed.checkInDate);
-        }
-        newBed.numDays = bed.numDays;
-        if (bed.checkOutDate != null) {
-            newBed.checkOutDate = new Date(bed.checkOutDate);
-        }
-        room.addBed(newBed);
-      }
-      hostel.rooms.sort((a, b) => a.name - b.name);
-      for (let room of hostel.rooms) {
-          room.beds.sort((a, b) => a.number - b.number);
-      }
-    }
-  });
   win.loadFile(path.join(__dirname, "src/html/index.html"));
+  // win.loadFile(path.join(__dirname, "hostelGen.html"));
+
 }
 
 app.on("ready", createWindow);
@@ -235,16 +181,23 @@ ipcMain.on("toMain", (event, args) => {
 });
 
 ipcMain.on("bedClicked", (event, args) => {
+  console.log(args);
   let curUrl = win.webContents.getURL().split("/")[win.webContents.getURL().split("/").length - 1];
   if (curUrl === "roompicker.html") {
     let alreadyClicked = false;
+    // Check if bed has been clibked
     for (let bed of bedsClicked) {
       if (bed.bed === args.bed && bed.room === args.room) {
         alreadyClicked = true;
         bedsClicked = bedsClicked.filter(b => b.bed !== args.bed && b.room !== args.room);
       }
     }
-    if (!alreadyClicked) {
+
+    // Check if bed is taken
+    let room = hostel.rooms.find(room => room.name === args.room);
+    let bed = room.beds.find(bed => bed.number === args.bed);
+    console.log(bed, bed.available);
+    if (!alreadyClicked && bed.available == 1) {
       bedsClicked.push(args);
     }
 
@@ -289,6 +242,7 @@ ipcMain.on("updateHostel", (event, args) => {
 });
 
 ipcMain.on("load", (event, args) => {
+  console.log(args);
   if (args["page"] === "index") {
     win.loadFile(path.join(__dirname, `src/html/index.html`));
   } else if (args["page"] === "checkout") {
@@ -305,4 +259,51 @@ ipcMain.on("load", (event, args) => {
     curData = args;
     win.loadFile(path.join(__dirname, `src/html/roompicker.html`));
   }
+});
+
+ipcMain.on("saveGuests", (event, args) => {
+    const filePath = dialog.showSaveDialog({
+        title: 'Save Guests',
+        defaultPath: 'guests.xlsx',
+        properties: ['openDirectory'],
+    }).then(result => {
+      console.log(result)
+      DB.all(`SELECT * FROM guests;`, (err, rows) => {
+        let data = [];
+        if (err) { console.error(err); } else {
+          for (let row of rows) { data.push(row); }
+          writeExcel(result.filePath, data);
+        }
+      });
+    }).catch(err => {
+      console.error(err);
+    });
+});
+
+ipcMain.on("createDB", (event, args) => {
+  console.log(args);
+  DB = new sqlite3.Database(`${args.name}.db`);
+  createRoomsTable(DB);
+  createBedsTable(DB);
+  createGuestsTable(DB);
+
+  let curId = 1;
+
+  // for (let room of args.rooms) {
+  //     let sql = SQLInsert("rooms", ["name", "numBeds"], [`"${room.roomName}"`, room.beds]);
+  //     try {
+  //         DB.run(sql);
+  //     } catch {
+  //       DB.run(sql)
+  //     }
+  //     for (let i = 0; i < room.beds; i++) {
+  //         let bedType = room.beds > 1 ? "Single" : "Double";
+  //         let sql = SQLInsert("beds", 
+  //             ["roomID", "room", "bed", "available", "type"], 
+  //             [curId, `"${room.roomName}"`, i + 1, "TRUE", `${bedType}`]
+  //         );
+  //         DB.run(sql);
+  //     }
+  //     curId++;
+  // }
 });
