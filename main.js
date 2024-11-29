@@ -10,7 +10,7 @@ const path = require("path");
 const fs = require("fs");
 const sqlite3 = require('sqlite3').verbose();
 
-const { BedCheckIn, SQLInsert, createBedsTable, createRoomsTable, createGuestsTable } = require("./utils_sql.js")
+const { BedCheckIn, BedCheckOut, SQLInsert, createBedsTable, createRoomsTable, createGuestsTable, GuestsCheckIn } = require("./utils_sql.js")
 const { createExcel, getWorkSheet, addEntry } = require("./utils_excel.js");
 let { Room } = require("./src/room.js");
 let { Hostel } = require("./src/hostel.js");
@@ -137,28 +137,57 @@ async function createWindow() {
 
 
   // Load app
-  fs.readFile("assets/hostel.json", (error, data) => {
-    if (error) {
-      console.error("error: " + error);
-      return;
-    } else {
-      console.log("success");
-    }
-    let json = JSON.parse(data);
-    for (let i = 0; i < json.length; i++) {
-      let bed = json[i];
-      let room = hostel.rooms.find(room => room.name === bed.room);
-      if (room == undefined) {
-        room = new Room(hostel, bed.room);
-        hostel.rooms.push(room);
-        hostel.numRooms++;
+  // fs.readFile("assets/hostel.json", (error, data) => {
+  //   if (error) {
+  //     console.error("error: " + error);
+  //     return;
+  //   } else {
+  //     console.log("success");
+  //   }
+  //   let json = JSON.parse(data);
+  //   for (let i = 0; i < json.length; i++) {
+  //     let bed = json[i];
+  //     let room = hostel.rooms.find(room => room.name === bed.room);
+  //     if (room == undefined) {
+  //       room = new Room(hostel, bed.room);
+  //       hostel.rooms.push(room);
+  //       hostel.numRooms++;
+  //     }
+  //     let newBed = new Bed(hostel, room, 'Single', bed.bed);
+  //     newBed.available = bed.available;
+  //     newBed.checkInDate = new Date(bed.checkInDate);
+  //     newBed.numDays = bed.numDays;
+  //     newBed.checkOutDate = new Date(bed.checkOutDate);
+  //     room.addBed(newBed);
+  //   }
+  // });
+  let data = [];
+  DB.all(`SELECT * FROM beds;`, (err, rows) => {
+    if (err) { console.error(err); } else {
+      for (let row of rows) { data.push(row); }
+      for (let i = 0; i < data.length; i++) {
+        let bed = data[i];
+        let room = hostel.rooms.find(room => room.name === bed.room);
+        if (room == undefined) {
+            room = new Room(hostel, bed.room);
+            hostel.rooms.push(room);
+            hostel.numRooms++;
+        }
+        let newBed = new Bed(hostel, room, 'Single', bed.bed);
+        newBed.available = bed.available;
+        if (bed.checkInDate != null) {
+            newBed.checkInDate = new Date(bed.checkInDate);
+        }
+        newBed.numDays = bed.numDays;
+        if (bed.checkOutDate != null) {
+            newBed.checkOutDate = new Date(bed.checkOutDate);
+        }
+        room.addBed(newBed);
       }
-      let newBed = new Bed(hostel, room, 'Single', bed.bed);
-      newBed.available = bed.available;
-      newBed.checkInDate = new Date(bed.checkInDate);
-      newBed.numDays = bed.numDays;
-      newBed.checkOutDate = new Date(bed.checkOutDate);
-      room.addBed(newBed);
+      hostel.rooms.sort((a, b) => a.name - b.name);
+      for (let room of hostel.rooms) {
+          room.beds.sort((a, b) => a.number - b.number);
+      }
     }
   });
   win.loadFile(path.join(__dirname, "src/html/index.html"));
@@ -176,7 +205,6 @@ ipcMain.on("toMain", (event, args) => {
     let data = [];
     DB.all(`SELECT * FROM guests;`, (err, rows) => {
       if (err) { console.error(err); } else {
-        let data = [];
         for (let row of rows) { data.push(row); }
         win.webContents.send("fromMain", { "data": data });
       }
@@ -226,64 +254,38 @@ ipcMain.on("bedClicked", (event, args) => {
     curRoom = args.room;
     win.loadFile(path.join(__dirname, `src/html/update.html`));
   }
-  // TODO: add logic to check not too many beds are clicked
-  // Count private room as two beds - if beds does not equal num ppl on submit then add a warning
 });
 
 ipcMain.on("reload", (event, args) => {
+  console.log(hostel)
   for (let room of hostel.rooms) {
-    for (let bed of room.beds) { bed.checkOut(); }
-  }
 
-  fs.writeFile("assets/hostel.json", hostel.getJsonString(), (error) => {
-    if (error) {
-      console.error("error: " + error);
-      return;
-    } else {
-      console.log("success");
-      curData = null;
+    for (let bed of room.beds) { 
+      let d = new Date();
+      let today = new Date(d.getFullYear(), d.getMonth(), d.getDate())
+      if (!bed.available&& bed.checkOutDate.getTime() <= today.getTime()) {
+            bed.available = true;
+            bed.checkInDate = null;
+            bed.numDays = null;
+            bed.checkOutDate = null;
+            BedCheckOut(DB, bed.room.name, bed.number);
+      }
     }
-  });
+  }
+  curData = null;
   win.webContents.reload();
 });
 
 ipcMain.on("updateHostel", (event, args) => {
-  // let numBedsClicked = 0;
-  // console.log(hostel);
-  // for (let bed of bedsClicked) {
-  //   let bedObj = hostel.getBed(bed.room, bed.bed);
-  //   let type = bedObj.type;
-  //   if (type === "Single") {
-  //     numBedsClicked ++;
-  //   } else {
-  //     numBedsClicked += 2;
-  //   } 
-  // }
-  //TODO: handle num beds clicked
-  console.log(numBedsClicked, curData.numppl);
+  // Save beds in DB
   for (let bed of bedsClicked) {
     BedCheckIn(DB, curData, bed.room, bed.bed);
   }
+  // Save guest to DB
+  GuestsCheckIn(DB, curData);
 
   curData = null;
   win.loadFile(path.join(__dirname, `src/html/index.html`));
-  // let numppl = parseInt(curData.numppl);
-
-  // if (numBedsClicked < numppl) { 
-  //   //TODO: Handle no enough beds clicked
-  //   // win.api.send("notEnoughBedsClicked", {});
-  // } else if (numBedsClicked == numppl) {
-  //   console.log("HERE");
-  //   // Update beds with check in, save file and load index page.
-  //   for (let bed of bedsClicked) {
-  //     SQLCheckIn(curData);
-  //   }
-
-  //   curData = null;
-  //   win.loadFile(path.join(__dirname, `index.html`));
-  // } else {
-
-  // }
 });
 
 ipcMain.on("load", (event, args) => {

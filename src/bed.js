@@ -55,10 +55,13 @@ class Bed {
     checkOut() {
         let d = new Date();
         let today = new Date(d.getFullYear(), d.getMonth(), d.getDate())
+
     
         if (this.available) {
             return false;
         } else {
+            console.log("checking out", this.checkOutDate.getTime(), today.getTime())
+
             if (this.checkOutDate.getTime() <= today.getTime()) {
                 this.available = true;
                 this.checkInDate = null;

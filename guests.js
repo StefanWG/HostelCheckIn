@@ -14,14 +14,25 @@ window.api.receive("fromMain", (args) => {
     let sortDirection = 'asc';
 
     // Function to render the table
+    // <th data-sort="name">Name</th>
+    // <th data-sort="numppl">People</th>
+    // <th data-sort="numnight">Nights</th>
+    // <th data-sort="country">Country</th>
+    // <th data-sort="passport">Passport</th>
+    // <th data-sort="coDate">Checkout Date</th>
     function renderTable(data) {
         tbody.innerHTML = ''; // Clear existing rows
         data.forEach(row => {
+            console.log(row);
             const tr = document.createElement('tr');
             tr.innerHTML = `
-                <td>${row.name}</td>
+                <td>${row.date}</td>
+                <td>${row.fname} ${row.lname}</td>
                 <td>${row.numppl}</td>
-                <td>${row.numnight}</td>
+                <td>${row.numDays}</td>
+                <td>${row.country}</td>
+                <td>${row.passport}</td>
+                <td>${row.checkOutDate}</td>
             `;
             tbody.appendChild(tr);
         });
@@ -60,7 +71,9 @@ window.api.receive("fromMain", (args) => {
 
     // Filter by date
     filterDateInput.addEventListener('input', () => {
+        // TODO: Allow for filter by different columns
         const filterDate = filterDateInput.value;
+        console.log(filterDate)
         const filteredData = tableData.filter(row => row.date === filterDate);
         renderTable(filteredData);
     });

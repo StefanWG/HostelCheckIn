@@ -13,9 +13,13 @@ window.api.receive("fromMain", (args) => {
         }
         let newBed = new Bed(hostel, room, 'Single', bed.bed);
         newBed.available = bed.available;
-        newBed.checkInDate = bed.checkInDate;
+        if (bed.checkInDate != null) {
+            newBed.checkInDate = new Date(bed.checkInDate);
+        }
         newBed.numDays = bed.numDays;
-        newBed.checkOutDate = bed.checkOutDate;
+        if (bed.checkOutDate != null) {
+            newBed.checkOutDate = new Date(bed.checkOutDate);
+        }
         room.addBed(newBed);
     }
     hostel.rooms.sort((a, b) => a.name - b.name);

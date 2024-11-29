@@ -28,16 +28,21 @@ function BedCheckOut(db, room, bed) {
 }
 
 function GuestsCheckIn(db, args) {
+    console.log(args);
+    let ciDate = args.checkInDate.getFullYear() + "-" + (args.checkInDate.getMonth() + 1) + "-" + args.checkInDate.getDate();
+    let coDate = args.checkOutDate.getFullYear() + "-" + (args.checkOutDate.getMonth() + 1) + "-" + args.checkOutDate.getDate();
     let sql = SQLInsert("guests",
         ["date", "fname", "lname", "numppl", "numDays", 
-            "country", "passport", "checkOutDate", 
-            "paid", "paymentMethod", "amountPaid", "currency", "notes"],
-        [args.date, `"${args.fname}"`, `"${args.lname}"`, 
+            "country", "passport", "checkOutDate"],
+            // "paid", "paymentMethod", "amountPaid", "currency", "notes"],
+        [`"${ciDate}"`, `"${args.fname}"`, `"${args.lname}"`, 
             args.numppl, args.numDays, `"${args.country}"`, 
-            `"${args.passport}"`, args.checkOutDate, args.paid, 
-            `"${args.paymentMethod}"`, args.amountPaid, `"${args.currency}"`, 
-            `"${args.notes}"`]
+            `"${args.passport}"`, `"${coDate}"`]
+        //  args.paid, 
+        //     `"${args.paymentMethod}"`, args.amountPaid, `"${args.currency}"`, 
+        //     `"${args.notes}"`]
     );
+    console.log(sql);
 
     db.run(sql);
 }
@@ -91,6 +96,7 @@ function createGuestsTable(db) {
 module.exports = {
     SQLInsert, 
     BedCheckIn,
+    BedCheckOut,
     GuestsCheckIn,
     createRoomsTable,
     createBedsTable,
