@@ -1,5 +1,4 @@
 // TODO: Language thing (esp, eng)
-// TODO: USE A DB INSTEAD OF JSON AND SPREADSHEET - STILL WRITE TO SPREADSHEET
 
 const {
   app,
@@ -25,63 +24,6 @@ const CHECKOUTLIST_FP = "checkoutlist.xlsx";
 const EXCEL_CHECKOUTLIST = createExcel(CHECKOUTLIST_FP, false);
 const DB = new sqlite3.Database('hostel.db');
 
-
-//       this.hostel = hostel;
-//       this.room = room;
-//       this.type = type;
-//       this.number = number;
-//       this.available = true;
-//       this.checkInDate = null;
-//       this.numDays = null;
-//       this.checkOutDate = null;
-//   }
-
-//   displayBed() {
-
-//       let bed = document.createElement('div');
-//       bed.textContent = this.number;
-//       bed.classList.add('bed');
-//       bed.classList.add(this.type);
-//       if (this.available) {
-//           bed.classList.add('available');
-//       } 
-
-//       bed.onclick = () => {
-//           window.api.send("loadCheckin", {bed: this.number, room: this.room.name});
-//       };
-//       return bed;
-//   }
-
-//   checkIn(numDays) {
-//       //TODO: USE CHEKC IN DATE
-//       let d = new Date();
-//       this.numDays = parseInt(numDays);
-//       this.available = false;
-//       this.checkInDate = new Date(d.getFullYear(), d.getMonth(), d.getDate()); // TODO: Get from page
-//       let temp = new Date()
-//       temp.setDate(temp.getDate() + this.numDays); 
-//       this.checkOutDate = new Date(temp.getFullYear(), temp.getMonth(), temp.getDate());
-//   }
-
-//   checkOut() {
-//     let d = new Date();
-//     let today = new Date(d.getFullYear(), d.getMonth(), d.getDate())
-
-//     if (this.available) {
-//       return false;
-//     } else {
-//       if (this.checkOutDate.getTime() <= today.getTime()) {
-
-//         this.available = true;
-//         this.checkInDate = null;
-//         this.numDays = null;
-//         this.checkOutDate = null;
-//         return true;
-//       }
-//     }
-//   }
-// }
-
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
 let win;
@@ -102,38 +44,38 @@ async function createWindow() {
       preload: path.join(__dirname, "preload.js") // use a preload script
     }
   });
-  // createRoomsTable(DB);
-  // createBedsTable(DB);
-  // createGuestsTable(DB);
-  // let data = [];
-  // DB.all(`SELECT * FROM beds;`, (err, rows) => {
-  //   if (err) { console.error(err); } else {
-  //     for (let row of rows) { data.push(row); }
-  //     for (let i = 0; i < data.length; i++) {
-  //       let bed = data[i];
-  //       let room = hostel.rooms.find(room => room.name === bed.room);
-  //       if (room == undefined) {
-  //           room = new Room(hostel, bed.room);
-  //           hostel.rooms.push(room);
-  //           hostel.numRooms++;
-  //       }
-  //       let newBed = new Bed(hostel, room, 'Single', bed.bed);
-  //       newBed.available = bed.available;
-  //       if (bed.checkInDate != null) {
-  //           newBed.checkInDate = new Date(bed.checkInDate);
-  //       }
-  //       newBed.numDays = bed.numDays;
-  //       if (bed.checkOutDate != null) {
-  //           newBed.checkOutDate = new Date(bed.checkOutDate);
-  //       }
-  //       room.addBed(newBed);
-  //     }
-  //     hostel.rooms.sort((a, b) => a.name - b.name);
-  //     for (let room of hostel.rooms) {
-  //         room.beds.sort((a, b) => a.number - b.number);
-  //     }
-  //   }
-  // });
+  createRoomsTable(DB);
+  createBedsTable(DB);
+  createGuestsTable(DB);
+  let data = [];
+  DB.all(`SELECT * FROM beds;`, (err, rows) => {
+    if (err) { console.error(err); } else {
+      for (let row of rows) { data.push(row); }
+      for (let i = 0; i < data.length; i++) {
+        let bed = data[i];
+        let room = hostel.rooms.find(room => room.name === bed.room);
+        if (room == undefined) {
+            room = new Room(hostel, bed.room);
+            hostel.rooms.push(room);
+            hostel.numRooms++;
+        }
+        let newBed = new Bed(hostel, room, 'Single', bed.bed);
+        newBed.available = bed.available;
+        if (bed.checkInDate != null) {
+            newBed.checkInDate = new Date(bed.checkInDate);
+        }
+        newBed.numDays = bed.numDays;
+        if (bed.checkOutDate != null) {
+            newBed.checkOutDate = new Date(bed.checkOutDate);
+        }
+        room.addBed(newBed);
+      }
+      hostel.rooms.sort((a, b) => a.name - b.name);
+      for (let room of hostel.rooms) {
+          room.beds.sort((a, b) => a.number - b.number);
+      }
+    }
+  });
   win.loadFile(path.join(__dirname, "src/html/index.html"));
   // win.loadFile(path.join(__dirname, "hostelGen.html"));
 
@@ -164,6 +106,15 @@ ipcMain.on("toMain", (event, args) => {
         win.webContents.send("fromMain", { "data": data });
       }
     });
+  } else if (args === "update") {
+    DB.all(`SELECT guestID FROM beds WHERE bed = "${curBed}" AND room = "${curRoom}";`, (err, rows) => {
+     let guestID = rows[rows.length-1].guestID;
+     DB.all(`SELECT * FROM guests WHERE guestID = ${guestID};`, (err, rows) => {
+        if (err) { console.error(err); } else {
+          win.webContents.send("fromMain", { "data": rows[0] });
+        }
+      });
+    });
   } else {
     DB.all(`SELECT * FROM beds`, (err, rows) => {
       if (err) { console.error(err); } else {
@@ -181,7 +132,6 @@ ipcMain.on("toMain", (event, args) => {
 });
 
 ipcMain.on("bedClicked", (event, args) => {
-  console.log(args);
   let curUrl = win.webContents.getURL().split("/")[win.webContents.getURL().split("/").length - 1];
   if (curUrl === "roompicker.html") {
     let alreadyClicked = false;
@@ -196,7 +146,6 @@ ipcMain.on("bedClicked", (event, args) => {
     // Check if bed is taken
     let room = hostel.rooms.find(room => room.name === args.room);
     let bed = room.beds.find(bed => bed.number === args.bed);
-    console.log(bed, bed.available);
     if (!alreadyClicked && bed.available == 1) {
       bedsClicked.push(args);
     }
@@ -210,7 +159,6 @@ ipcMain.on("bedClicked", (event, args) => {
 });
 
 ipcMain.on("reload", (event, args) => {
-  console.log(hostel)
   for (let room of hostel.rooms) {
 
     for (let bed of room.beds) { 
@@ -229,20 +177,16 @@ ipcMain.on("reload", (event, args) => {
   win.webContents.reload();
 });
 
+
 ipcMain.on("updateHostel", (event, args) => {
-  // Save beds in DB
-  for (let bed of bedsClicked) {
-    BedCheckIn(DB, curData, bed.room, bed.bed);
-  }
-  // Save guest to DB
-  GuestsCheckIn(DB, curData);
+  curData["bedsClicked"] = bedsClicked
+  GuestsCheckIn(DB, curData)
 
   curData = null;
   win.loadFile(path.join(__dirname, `src/html/index.html`));
 });
 
 ipcMain.on("load", (event, args) => {
-  console.log(args);
   if (args["page"] === "index") {
     win.loadFile(path.join(__dirname, `src/html/index.html`));
   } else if (args["page"] === "checkout") {
@@ -267,7 +211,6 @@ ipcMain.on("saveGuests", (event, args) => {
         defaultPath: 'guests.xlsx',
         properties: ['openDirectory'],
     }).then(result => {
-      console.log(result)
       DB.all(`SELECT * FROM guests;`, (err, rows) => {
         let data = [];
         if (err) { console.error(err); } else {

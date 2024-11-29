@@ -6,7 +6,7 @@
 	<script src="../room.js"></script>
 	<script src="../hostel.js"></script>
     <script src="../../main.js"></script>
-    <script src="../../checkin.js" defer></script>
+    <script src="../../update.js" defer></script>
     <link rel="stylesheet" href="../css/styles.css">
     <link rel="stylesheet" href="../css/styles-checkin.css">
     <link rel="stylesheet" href="../css/nav.css">
@@ -27,8 +27,8 @@
             <input type="text" id="country" placeholder="Country">
             <input type="text" id="passport" placeholder="Passport Number">
         </div>
-        <input type="number" id="Total" placeholder="Total">
-        <input type="person" id="person" placeholder="Volunteer">
+        <input type="number" id="total" placeholder="Total">
+        <input type="text" id="person" placeholder="Volunteer">
         <div id="payment">
             <div id="tab-container">
                 <input type="radio" name="payment" value="cash" id="cash" checked>
@@ -45,10 +45,12 @@
             </div>
         </div>
     </form>
+    <div id="button-container" class="two-container">
+
     <button id="update">Update</button> 
     <button id="changerooms">Change Beds</button>
     <button id="delete">Delete</button>
     <!-- TODO: Add popup for delete -->
-    <button id="cancel">Cancel</button>
+    </div>
 </body>
 </html>

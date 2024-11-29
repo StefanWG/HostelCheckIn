@@ -3,13 +3,14 @@ function SQLInsert(table, columns, values) {
     return sql;
 }
   
-function BedCheckIn(db, args, room, bed) {
+function BedCheckIn(db, args, room, bed, guestID) {
     let sql = 
     `UPDATE beds 
     SET available = 0,
     checkInDate = "${args.checkInDate.getFullYear()}-${args.checkInDate.getMonth()+1}-${args.checkInDate.getDate()}", 
     numDays = ${args.numDays}, 
-    checkOutDate = "${args.checkOutDate.getFullYear()}-${args.checkOutDate.getMonth()+1}-${args.checkOutDate.getDate()}"
+    checkOutDate = "${args.checkOutDate.getFullYear()}-${args.checkOutDate.getMonth()+1}-${args.checkOutDate.getDate()}",
+    guestID = ${parseInt(guestID)}
     WHERE bed = "${bed}" AND room = "${room}";`;
     console.log(sql)
     db.run(sql);
@@ -28,7 +29,9 @@ function BedCheckOut(db, room, bed) {
 }
 
 function GuestsCheckIn(db, args) {
-    console.log(args);
+    console.log(args)
+    let bedsClicked = args["bedsClicked"];
+    delete args["bedsClicked"]
     let ciDate = args.checkInDate.getFullYear() + "-" + (args.checkInDate.getMonth() + 1) + "-" + args.checkInDate.getDate();
     let coDate = args.checkOutDate.getFullYear() + "-" + (args.checkOutDate.getMonth() + 1) + "-" + args.checkOutDate.getDate();
     let sql = SQLInsert("guests",
@@ -42,14 +45,20 @@ function GuestsCheckIn(db, args) {
         //     `"${args.paymentMethod}"`, args.amountPaid, `"${args.currency}"`, 
         //     `"${args.notes}"`]
     );
-    console.log(sql);
-
     db.run(sql);
+
+    db.all(`SELECT guestID FROM guests WHERE fname = "${args.fname}" AND lname = "${args.lname}" AND passport = "${args.passport}";`, (err, rows) => {
+        let guestID = rows[rows.length-1].guestID;
+
+        for (let bed of bedsClicked) {
+            BedCheckIn(db, args, bed.room, bed.bed, guestID);
+        }
+    });
 }
 
 function createRoomsTable(db) {
     db.run(
-        `CREATE TABLE rooms (
+        `CREATE TABLE IF NOT EXISTS rooms (
             roomID INTEGER PRIMARY KEY,
             name TEXT,
             numBeds INTEGER
@@ -59,7 +68,7 @@ function createRoomsTable(db) {
 
 function createBedsTable(db) {
     db.run(
-        `CREATE TABLE beds (
+        `CREATE TABLE IF NOT EXISTS beds (
             bedID INTEGER PRIMARY KEY,
             roomID INTEGER, 
             room TEXT,
@@ -76,7 +85,7 @@ function createBedsTable(db) {
 
 function createGuestsTable(db) {
     db.run(
-        `CREATE TABLE guests (
+        `CREATE TABLE IF NOT EXISTS guests (
             guestID INTEGER PRIMARY KEY, 
             date INTEGER, fname TEXT, 
             lname TEXT, 

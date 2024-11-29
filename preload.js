@@ -9,7 +9,9 @@ contextBridge.exposeInMainWorld(
     "api", {
         send: (channel, data) => {
             // whitelist channels
-            let validChannels = ["toMain", "bedClicked","updateHostel",  "reload", "load", "saveGuests", "createDB"];
+            let validChannels = ["toMain", "bedClicked","updateHostel",  "reload", "load", "saveGuests", "createDB",
+                "guestID"
+            ];
             //TODO: one channel to load page and then url as arg
             if (validChannels.includes(channel)) {
                 ipcRenderer.send(channel, data);
